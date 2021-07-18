@@ -6,7 +6,7 @@ class OciConfig
 {
     public string $region = '';
     public string $ociUserId = '';
-    public string $compartmentId = '';
+    public string $tenancyId = '';
     public string $keyFingerPrint = '';
     public string $privateKeyFilename = '';
     public string $availabilityDomain = '';
@@ -18,7 +18,7 @@ class OciConfig
     public function __construct(
         string $region,
         string $ociUserId,
-        string $compartmentId,
+        string $tenancyId,
         string $keyFingerPrint,
         string $privateKeyFilename,
         string $availabilityDomain,
@@ -30,7 +30,7 @@ class OciConfig
     {
         $this->region = $region;
         $this->ociUserId = $ociUserId;
-        $this->compartmentId = $compartmentId;
+        $this->tenancyId = $tenancyId;
         $this->keyFingerPrint = $keyFingerPrint;
         $this->privateKeyFilename = $privateKeyFilename;
         $this->availabilityDomain = $availabilityDomain;

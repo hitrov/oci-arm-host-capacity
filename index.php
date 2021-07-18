@@ -7,15 +7,6 @@ require "{$pathPrefix}vendor/autoload.php";
 use Hitrov\OCI\Signer;
 use Hitrov\OciConfig;
 
-// when you create API key in OCI Console,
-// save the Configuration File Preview output, e.g.
-//[DEFAULT]
-//user=ocid1.user.oc1..aaaaaaaa***
-//fingerprint=42:b1:***:5b:2c
-//tenancy=ocid1.tenancy.oc1..aaaaaaaaa***
-//region=us-phoenix-1
-//key_file=<path to your private keyfile>
-
 $config1 = new OciConfig(
     'us-phoenix-1', // region above
     'ocid1.user.oc1..aaaaaaaa***', // user above
@@ -26,14 +17,6 @@ $config1 = new OciConfig(
     'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId below
     'ocid1.image.oc1.phx.aaaaaaaay***', // imageId below
 );
-
-// 1. begin your attempt to create ARM instance in the browser
-// 2. make sure "Always Free Eligible" Availability Domain is chosen
-// 3. in "Add SSH keys" section select "Paste public keys" and set the value of your e.g. ~/.ssh/id_rsa.pub
-// 4. expand "Networking" section and select "Do not assign a public IPv4 address" (you can assign it later as only two are available for free)
-// 5. before clicking "create" open dev tools
-// 6. click "create", wait and "copy as curl" request to the endpoint https://iaas.{region}.oraclecloud.com/20160918/instances/
-// 7. collect availabilityDomain, imageId, subnetId
 
 $configs = [
     $config1,
@@ -58,7 +41,7 @@ foreach ($configs as $config) {
         "ssh_authorized_keys": "$sshKey"
     },
     "shape": "$shape",
-    "compartmentId": "{$config->compartmentId}",
+    "compartmentId": "{$config->tenancyId}",
     "displayName": "$displayName",
     "availabilityDomain": "{$config->availabilityDomain}",
     "sourceDetails": {
@@ -98,7 +81,7 @@ EOD;
     $url = "https://iaas.{$config->region}.oraclecloud.com/20160918/instances/";
 
     $signer = new Signer(
-        $config->compartmentId,
+        $config->tenancyId,
         $config->ociUserId,
         $config->keyFingerPrint,
         $config->privateKeyFilename
