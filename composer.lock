@@ -1,0 +1,75 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "95bb65b518cbee692e386bad8d855e8a",
+    "packages": [
+        {
+            "name": "hitrov/oci-api-php-request-sign",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hitrov/oci-api-php-request-sign.git",
+                "reference": "8b6b213417ea67213275e0733ba3d706f8e2c3fa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hitrov/oci-api-php-request-sign/zipball/8b6b213417ea67213275e0733ba3d706f8e2c3fa",
+                "reference": "8b6b213417ea67213275e0733ba3d706f8e2c3fa",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": "^7.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Hitrov\\OCI\\": "src/Hitrov/OCI",
+                    "Hitrov\\Test\\": "tests/Hitrov/Test"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander Hitrov",
+                    "email": "github.com@hitrov.com"
+                }
+            ],
+            "description": "This package generates proper HTTP headers to sign Oracle Cloud Infrastructure API requests",
+            "homepage": "https://github.com/hitrov/oci-api-php-request-sign",
+            "keywords": [
+                "api",
+                "oci",
+                "request",
+                "signature"
+            ],
+            "support": {
+                "issues": "https://github.com/hitrov/oci-api-php-request-sign/issues",
+                "source": "https://github.com/hitrov/oci-api-php-request-sign/tree/v1.0"
+            },
+            "time": "2021-02-11T00:43:48+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^7.4",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}

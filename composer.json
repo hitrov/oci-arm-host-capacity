@@ -1,0 +1,24 @@
+{
+    "name": "hitrov/oci-arm-host-capacity",
+    "description": "This script being run as cron job (e.g. every minute) allows to bypass Oracle Cloud Infrastructure 'Out of host capacity' error immediately when additional OCI capacity will appear in your Home Region / Availability domain.",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Alexander Hitrov",
+            "email": "github.com@hitrov.com"
+        }
+    ],
+    "version": "1.0",
+    "require": {
+        "php": "^7.4",
+        "hitrov/oci-api-php-request-sign": "^1.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hitrov\\":"src/"
+        }
+    },
+    "license": "MIT"
+}
