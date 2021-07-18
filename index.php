@@ -134,9 +134,13 @@ EOD;
     curl_close($curl);
 
     if (
-        ($r['code'] === 'InternalError' && $r['message'] === 'Out of host capacity.')
-        ||
-        ($r['code'] === 'LimitExceeded' && strpos($r['message'], 'The following service limits were exceeded:') !== false)
+        !empty($r['code'])
+        &&
+        (
+            ($r['code'] === 'InternalError' && $r['message'] === 'Out of host capacity.')
+            ||
+            ($r['code'] === 'LimitExceeded' && strpos($r['message'], 'The following service limits were exceeded:') !== false)
+        )
     ) {
         continue;
     }
