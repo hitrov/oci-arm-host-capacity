@@ -1,5 +1,11 @@
 # Resolving Oracle Cloud "Out of Capacity" issue and getting free VPS with 4 ARM cores / 24GB of memory
 
+Very neat and useful configuration was recently [announced](https://blogs.oracle.com/cloud-infrastructure/post/moving-to-ampere-a1-compute-instances-on-oracle-cloud-infrastructure-oci) at Oracle Cloud Infrastructure (OCI) blog as a part of Always Free tier. Unfortunately, it's very complicated to launch an instance due to the common "Out of Capacity" error. Here we're solving that issue as Oracle constantly adds capacity from time to time.
+
+```
+Each tenancy gets the first 3,000 OCPU hours and 18,000 GB hours per month for free to create Ampere A1 Compute instances using the VM.Standard.A1.Flex shape (equivalent to 4 OCPUs and 24 GB of memory).
+```
+
 This approach requires **PHP 7.4** and **composer** installed and will call "LaunchInstance" OCI API [endpoint](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/LaunchInstance). We'll utilise the [package](https://packagist.org/packages/hitrov/oci-api-php-request-sign) which I've written (and [published](https://github.com/hitrov/oci-api-php-request-sign)) some time ago, here's the [article](https://hitrov.medium.com/creating-mini-php-sdk-to-sign-oracle-cloud-infrastructure-api-requests-d91a224c7008?sk=5b4405c1124bfeac30a370630fd94126).
 
 If you prefer article style, here's a link to Medium (//todo)
@@ -126,6 +132,8 @@ In case of success the JSON output will be similar to
 ![Launch success 2](images/launch-output-2.png)
 
 In this case script will create a file with the same name as your OCI user and the the next script iteration will be skipped for this  OciConfig. And of course the instance will appear in your OCI Console (web browser).
+
+I believe it's pretty safe to leave the cron running and check cloud console once per few days. Because when you'll succeed, usually you won't be able to create more instances than allowed - but start getting errors above instead.
 
 ## Assigning public IP address
 

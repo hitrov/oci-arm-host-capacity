@@ -8,14 +8,14 @@ use Hitrov\OCI\Signer;
 use Hitrov\OciConfig;
 
 $config1 = new OciConfig(
-    'us-phoenix-1', // region above
-    'ocid1.user.oc1..aaaaaaaa***', // user above
-    'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy above
-    '42:b1:***:5b:2c', // fingerprint above
-    "{$pathPrefix}oracleidentitycloudservice_oracle-***.pem", // key_file above
-    'jYtI:PHX-AD-1', // availabilityDomain below
-    'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId below
-    'ocid1.image.oc1.phx.aaaaaaaay***', // imageId below
+    'us-phoenix-1', // region
+    'ocid1.user.oc1..aaaaaaaa***', // user
+    'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy
+    '42:b1:***:5b:2c', // fingerprint
+    "oracleidentitycloudservice_oracle-***.pem", // key_file
+    'jYtI:PHX-AD-1', // availabilityDomain
+    'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
+    'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
 );
 
 $configs = [
@@ -110,6 +110,8 @@ EOD;
     curl_setopt_array($curl, $curlOptions);
 
     $response = curl_exec($curl);
+    $error = curl_error($curl);
+    $info = curl_getinfo($curl);
     $r = json_decode($response, true);
     $prettifiedResponse = json_encode($r, JSON_PRETTY_PRINT);
     echo $prettifiedResponse;
@@ -117,12 +119,16 @@ EOD;
     curl_close($curl);
 
     if (
-        !empty($r['code'])
-        &&
+        $error ||
+        (!empty($info) && $info['http_code'] !== 200) ||
         (
-            ($r['code'] === 'InternalError' && $r['message'] === 'Out of host capacity.')
-            ||
-            ($r['code'] === 'LimitExceeded' && strpos($r['message'], 'The following service limits were exceeded:') !== false)
+            !empty($r['code'])
+            &&
+            (
+                ($r['code'] === 'InternalError' && $r['message'] === 'Out of host capacity.')
+                ||
+                ($r['code'] === 'LimitExceeded' && strpos($r['message'], 'The following service limits were exceeded:') !== false)
+            )
         )
     ) {
         continue;
