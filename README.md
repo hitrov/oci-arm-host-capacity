@@ -123,7 +123,7 @@ There could be cases when cron user won't have some permissions, the easiest way
 
 You can also visit the URL above and see the same command output as by running from the shell.
 
-Before the instance creation, script will call [ListInstances](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/ListInstances) OCI API method and check whether there're already existing instances with the same `$shape`, as well as number of them `$maxRunningInstancesOfThatShape`.
+Before the instance creation, script will call [ListInstances](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/ListInstances) OCI API method and check whether there're already existing instances with the same `$shape`, as well as number of them `$maxRunningInstancesOfThatShape`(you can safely adjust the last one if you wanna e.g. two VM.Standard.A1.Flex with 2/12 each).
 
 Script won't create new instance if current (actual) number return from the API exceeds the one from `$maxRunningInstancesOfThatShape` variable.
 
