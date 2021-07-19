@@ -123,23 +123,15 @@ There could be cases when cron user won't have some permissions, the easiest way
 
 You can also visit the URL above and see the same command output as by running from the shell.
 
+Before the instance creation, script will call [ListInstances](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/ListInstances) OCI API method and check whether there're already existing instances with the same `$shape`, as well as number of them `$maxRunningInstancesOfThatShape`.
+
+Script won't create new instance if current (actual) number return from the API exceeds the one from `$maxRunningInstancesOfThatShape` variable.
+
 In case of success the JSON output will be similar to
 
 ![Launch success 1](images/launch-output-1.png)
 
 ![Launch success 2](images/launch-output-2.png)
-
-In this case script will create a file with the same name as your OCI user and the the next script iteration will be skipped for this  OciConfig. And of course the instance will appear in your OCI Console (web browser).
-
-I believe it's pretty safe to leave the cron running and check cloud console once per few days. Because when you'll succeed, usually you won't be able to create more instances than allowed - but start getting errors above instead.
-
-**If you switched to “Pay as you go” plan, you must consider how to stop OCI CLI API calls after you succeed–to not run into unintended charges. For example, you can setup a command**
-
-```bash
-oci compute instance list --compartment-id $C
-```
-
-…somehow check it’s output periodically to know when cron needs to be disabled. That’s not related to our issue here.
 
 ## Assigning public IP address
 
