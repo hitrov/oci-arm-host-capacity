@@ -133,6 +133,14 @@ In this case script will create a file with the same name as your OCI user and t
 
 I believe it's pretty safe to leave the cron running and check cloud console once per few days. Because when you'll succeed, usually you won't be able to create more instances than allowed - but start getting errors above instead.
 
+**If you switched to “Pay as you go” plan, you must consider how to stop OCI CLI API calls after you succeed–to not run into unintended charges. For example, you can setup a command**
+
+```bash
+oci compute instance list --compartment-id $C
+```
+
+…somehow check it’s output periodically to know when cron needs to be disabled. That’s not related to our issue here.
+
 ## Assigning public IP address
 
 We are not doing this during the command run due to the default limitation (2 ephemeral addresses per compartment). That's how you can achieve this. When you'll succeed with creating an instance, open OCI Console, go to Instance Details -> Resources -> Attached VNICs by selecting it's name
