@@ -194,7 +194,7 @@ function checkExistingInstances(OciConfig $config, array $listResponse, string $
         return !in_array($instance['lifecycleState'], $acceptableStates) && $instance['shape'] === $shape;
     });
 
-    if (count($existingInstances) <= $maxRunningInstancesOfThatShape) {
+    if (count($existingInstances) < $maxRunningInstancesOfThatShape) {
         return '';
     }
 
