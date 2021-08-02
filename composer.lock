@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3944cdaefa9cf677f8302c232fbf547c",
+    "content-hash": "777579f11bfd83ad73fe9bc6f756e636",
     "packages": [
         {
             "name": "hitrov/oci-api-php-request-sign",

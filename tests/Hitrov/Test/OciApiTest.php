@@ -73,12 +73,13 @@ class OciApiTest extends TestCase
 
         $api = new OciApi();
 
-        $result = $api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'));
+        [ $response, $listError, $listInfo ] = $api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'));
+        $responseArray = json_decode($response, true);
 
-        $this->assertNotEmpty($result);
-        $this->assertEquals(getenv('OCI_AVAILABILITY_DOMAIN'), $result[0]['availabilityDomain']);
-        $this->assertEquals(getenv('OCI_TENANCY_ID'), $result[0]['compartmentId']);
-        $this->assertEquals(getenv('OCI_IMAGE_ID'), $result[0]['imageId']);
-        $this->assertEquals(getenv('OCI_SHAPE'), $result[0]['shape']);
+        $this->assertNotEmpty($responseArray);
+        $this->assertEquals(getenv('OCI_AVAILABILITY_DOMAIN'), $responseArray['availabilityDomain']);
+        $this->assertEquals(getenv('OCI_TENANCY_ID'), $responseArray['compartmentId']);
+        $this->assertEquals(getenv('OCI_IMAGE_ID'), $responseArray['imageId']);
+        $this->assertEquals(getenv('OCI_SHAPE'), $responseArray['shape']);
     }
 }
