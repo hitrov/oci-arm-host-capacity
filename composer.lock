@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "hitrov/oci-api-php-request-sign",
-            "version": "1.1.2",
+            "version": "1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hitrov/oci-api-php-request-sign.git",
-                "reference": "477e0803d962746adca08192d83f63515a55302b"
+                "reference": "f3de3bddef1eb23589776fb01eda844ef9d4dae1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hitrov/oci-api-php-request-sign/zipball/477e0803d962746adca08192d83f63515a55302b",
-                "reference": "477e0803d962746adca08192d83f63515a55302b",
+                "url": "https://api.github.com/repos/hitrov/oci-api-php-request-sign/zipball/f3de3bddef1eb23589776fb01eda844ef9d4dae1",
+                "reference": "f3de3bddef1eb23589776fb01eda844ef9d4dae1",
                 "shasum": ""
             },
             "require": {
@@ -53,9 +53,9 @@
             ],
             "support": {
                 "issues": "https://github.com/hitrov/oci-api-php-request-sign/issues",
-                "source": "https://github.com/hitrov/oci-api-php-request-sign/tree/v1.1.2"
+                "source": "https://github.com/hitrov/oci-api-php-request-sign/tree/v1.2"
             },
-            "time": "2021-08-02T17:12:26+00:00"
+            "time": "2021-08-02T22:09:55+00:00"
         }
     ],
     "packages-dev": [
