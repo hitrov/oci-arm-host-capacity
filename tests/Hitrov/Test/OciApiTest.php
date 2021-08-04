@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Hitrov\Test;
 
@@ -30,8 +30,8 @@ class OciApiTest extends TestCase
             getenv('OCI_AVAILABILITY_DOMAIN'),
             getenv('OCI_SUBNET_ID'),
             getenv('OCI_IMAGE_ID'),
-            getenv('OCI_OCPUS'),
-            getenv('OCI_MEMORY_IN_GBS'),
+            (int) getenv('OCI_OCPUS'),
+            (int) getenv('OCI_MEMORY_IN_GBS'),
         );
     }
 
@@ -58,7 +58,12 @@ class OciApiTest extends TestCase
     {
         $api = new OciApi();
 
-        self::$existingInstances = $api->checkExistingInstances(self::$config, self::$listResponse, getenv('OCI_SHAPE'), getenv('OCI_MAX_INSTANCES'));
+        self::$existingInstances = $api->checkExistingInstances(
+            self::$config,
+            self::$listResponse,
+            getenv('OCI_SHAPE'),
+            (int) getenv('OCI_MAX_INSTANCES'),
+        );
         $this->assertEquals(0, strpos(self::$existingInstances, self::HAVE_INSTANCE));
     }
 

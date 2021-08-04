@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 
 // useful when script is being executed by cron user
 $pathPrefix = ''; // e.g. /usr/share/nginx/oci-arm-host-capacity/
@@ -29,7 +31,11 @@ $api = new OciApi();
 
 foreach ($configs as $config) {
     $shape = getenv('OCI_SHAPE') ?: 'VM.Standard.A1.Flex'; // or VM.Standard.E2.1.Micro
-    $maxRunningInstancesOfThatShape = getenv('OCI_MAX_INSTANCES') ?? 1;
+
+    $maxRunningInstancesOfThatShape = 1;
+    if (getenv('OCI_MAX_INSTANCES') !== false) {
+        $maxRunningInstancesOfThatShape = (int) getenv('OCI_MAX_INSTANCES');
+    }
 
     [ $listResponse, $listError, $listInfo ] = $api->getInstances($config);
 
