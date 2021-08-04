@@ -18,8 +18,8 @@ $config1 = new OciConfig(
     getenv('OCI_AVAILABILITY_DOMAIN') ?: 'jYtI:PHX-AD-1', // availabilityDomain
     getenv('OCI_SUBNET_ID') ?: 'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
     getenv('OCI_IMAGE_ID') ?: 'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
-    getenv('OCI_OCPUS') ?: 4,
-    getenv('OCI_MEMORY_IN_GBS') ?: 24
+    (int) getenv('OCI_OCPUS') ?: 4,
+    (int) getenv('OCI_MEMORY_IN_GBS') ?: 24
 );
 
 $configs = [
