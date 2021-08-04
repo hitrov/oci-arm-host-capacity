@@ -8,16 +8,16 @@ use Hitrov\OciApi;
 use Hitrov\OciConfig;
 
 $config1 = new OciConfig(
-    getenv('OCI_REGION') ?? 'us-phoenix-1', // region
-    getenv('OCI_USER_ID') ?? 'ocid1.user.oc1..aaaaaaaa***', // user
-    getenv('OCI_TENANCY_ID') ?? 'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy
-    getenv('OCI_KEY_FINGERPRINT') ?? '42:b1:***:5b:2c', // fingerprint
-    getenv('OCI_PRIVATE_KEY_FILENAME') ?? "oracleidentitycloudservice_oracle-***.pem", // key_file
-    getenv('OCI_AVAILABILITY_DOMAIN') ?? 'jYtI:PHX-AD-1', // availabilityDomain
-    getenv('OCI_SUBNET_ID') ?? 'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
-    getenv('OCI_IMAGE_ID') ?? 'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
-    getenv('OCI_OCPUS') ?? 4,
-    getenv('OCI_MEMORY_IN_GBS') ?? 24
+    getenv('OCI_REGION') ?: 'us-phoenix-1', // region
+    getenv('OCI_USER_ID') ?: 'ocid1.user.oc1..aaaaaaaa***', // user
+    getenv('OCI_TENANCY_ID') ?: 'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy
+    getenv('OCI_KEY_FINGERPRINT') ?: '42:b1:***:5b:2c', // fingerprint
+    getenv('OCI_PRIVATE_KEY_FILENAME') ?: "oracleidentitycloudservice_oracle-***.pem", // key_file
+    getenv('OCI_AVAILABILITY_DOMAIN') ?: 'jYtI:PHX-AD-1', // availabilityDomain
+    getenv('OCI_SUBNET_ID') ?: 'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
+    getenv('OCI_IMAGE_ID') ?: 'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
+    getenv('OCI_OCPUS') ?: 4,
+    getenv('OCI_MEMORY_IN_GBS') ?: 24
 );
 
 $configs = [
@@ -28,7 +28,7 @@ $configs = [
 $api = new OciApi();
 
 foreach ($configs as $config) {
-    $shape = getenv('OCI_SHAPE') ?? 'VM.Standard.A1.Flex'; // or VM.Standard.E2.1.Micro
+    $shape = getenv('OCI_SHAPE') ?: 'VM.Standard.A1.Flex'; // or VM.Standard.E2.1.Micro
     $maxRunningInstancesOfThatShape = getenv('OCI_MAX_INSTANCES') ?? 1;
 
     [ $listResponse, $listError, $listInfo ] = $api->getInstances($config);
@@ -50,7 +50,7 @@ foreach ($configs as $config) {
         continue;
     }
 
-    $sshKey = getenv('OCI_SSH_PUBLIC_KEY') ?? 'ssh-rsa AAAAB3NzaC1...p5m8= ubuntu@localhost'; // ~/.ssh/id_rsa.pub contents
+    $sshKey = getenv('OCI_SSH_PUBLIC_KEY') ?: 'ssh-rsa AAAAB3NzaC1...p5m8= ubuntu@localhost'; // ~/.ssh/id_rsa.pub contents
     [ $response, $error, $info ] = $api->createInstance($config, $shape, $sshKey);
 
     $r = json_decode($response, true);
