@@ -12,6 +12,8 @@ This approach requires **PHP 7.4** or **PHP 8.0** and **composer** installed and
 
 If you prefer article style, here's a link to [Medium](https://hitrov.medium.com/resolving-oracle-cloud-out-of-capacity-issue-and-getting-free-vps-with-4-arm-cores-24gb-of-6ecd5ede6fcc?sk=01d761f7cd80c77e0fed773972f4d1a8)
 
+YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgjElc64).
+
 - [Generating API key](#generating-api-key)
 - [Installation](#installation)
 - [Adjust script file](#adjust-script-file)
