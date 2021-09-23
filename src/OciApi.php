@@ -8,6 +8,11 @@ use Hitrov\OCI\Signer;
 
 class OciApi
 {
+    /**
+     * @var array
+     */
+    private $existingInstances;
+
     public function createInstance(OciConfig $config, string $shape, string $sshKey): array
     {
         $curl = curl_init();
@@ -134,24 +139,24 @@ EOD;
 
     public function checkExistingInstances(OciConfig $config, array $listResponse, string $shape, int $maxRunningInstancesOfThatShape): string
     {
-        $existingInstances = array_filter($listResponse, function ($instance) use ($shape) {
+        $this->existingInstances = array_filter($listResponse, function ($instance) use ($shape) {
 //        $unacceptableStates = ['RUNNING', 'PROVISIONING', 'STARTING', 'STOPPED', 'STOPPING', 'TERMINATING'];
             $acceptableStates = ['TERMINATED'];
             return !in_array($instance['lifecycleState'], $acceptableStates) && $instance['shape'] === $shape;
         });
 
-        if (count($existingInstances) < $maxRunningInstancesOfThatShape) {
+        if (count($this->existingInstances) < $maxRunningInstancesOfThatShape) {
             return '';
         }
 
         $displayNames = array_map(function ($instance) {
             return $instance['displayName'];
-        }, $existingInstances);
+        }, $this->existingInstances);
         $displayNamesString = implode(', ', $displayNames);
 
         $lifecycleStates = array_map(function ($instance) {
             return $instance['lifecycleState'];
-        }, $existingInstances);
+        }, $this->existingInstances);
         $lifecycleStatesString = implode(', ', $lifecycleStates);
 
         return "Already have an instance(s) [$displayNamesString] in state(s) (respectively) [$lifecycleStatesString]. User: $config->ociUserId\n";
@@ -160,5 +165,13 @@ EOD;
     private function getApiUrl(OciConfig $config): string
     {
         return "https://iaas.{$config->region}.oraclecloud.com/20160918/instances/";
+    }
+
+    /**
+     * @return array
+     */
+    public function getExistingInstances(): array
+    {
+        return $this->existingInstances;
     }
 }

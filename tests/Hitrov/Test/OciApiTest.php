@@ -12,9 +12,11 @@ class OciApiTest extends TestCase
 {
     const HAVE_INSTANCE = 'Already have an instance';
 
+    private static OciApi $api;
     private static OciConfig $config;
     private static array $listResponse;
-    private static string $existingInstances;
+    private static string $existingInstancesErrorMessage;
+    private static array $existingInstances;
 
     /**
      * This method is called before each test.
@@ -33,6 +35,8 @@ class OciApiTest extends TestCase
             (int) getenv('OCI_OCPUS'),
             (int) getenv('OCI_MEMORY_IN_GBS'),
         );
+
+        self::$api = new OciApi();
     }
 
     /**
@@ -40,9 +44,7 @@ class OciApiTest extends TestCase
      */
     public function testGetInstances(): void
     {
-        $api = new OciApi();
-
-        [ $listResponse, $listError, $listInfo ] = $api->getInstances(self::$config);
+        [ $listResponse, $listError, $listInfo ] = self::$api->getInstances(self::$config);
 
         self::$listResponse = json_decode($listResponse, true);
 
@@ -56,15 +58,14 @@ class OciApiTest extends TestCase
      */
     public function testCheckExistingInstances(): void
     {
-        $api = new OciApi();
-
-        self::$existingInstances = $api->checkExistingInstances(
+        self::$existingInstancesErrorMessage = self::$api->checkExistingInstances(
             self::$config,
             self::$listResponse,
             getenv('OCI_SHAPE'),
             (int) getenv('OCI_MAX_INSTANCES'),
         );
-        $this->assertEquals(0, strpos(self::$existingInstances, self::HAVE_INSTANCE));
+        self::$existingInstances = self::$api->getExistingInstances();
+        $this->assertEquals(0, strpos(self::$existingInstancesErrorMessage, self::HAVE_INSTANCE));
     }
 
     /**
@@ -72,19 +73,21 @@ class OciApiTest extends TestCase
      */
     public function testCreateInstance(): void
     {
-        if (self::$existingInstances) {
-            $this->markTestSkipped(self::HAVE_INSTANCE);
-        }
-
-        $api = new OciApi();
-
-        [ $response, $listError, $listInfo ] = $api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'));
+        [ $response, $listError, $listInfo ] = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'));
         $responseArray = json_decode($response, true);
-
         $this->assertNotEmpty($responseArray);
-        $this->assertEquals(getenv('OCI_AVAILABILITY_DOMAIN'), $responseArray['availabilityDomain']);
-        $this->assertEquals(getenv('OCI_TENANCY_ID'), $responseArray['compartmentId']);
-        $this->assertEquals(getenv('OCI_IMAGE_ID'), $responseArray['imageId']);
-        $this->assertEquals(getenv('OCI_SHAPE'), $responseArray['shape']);
+
+        $existingInstancesNumber = count(self::$existingInstances);
+        $maxInstances = (int) getenv('OCI_MAX_INSTANCES');
+
+        if (self::$existingInstancesErrorMessage && $existingInstancesNumber < $maxInstances) {
+            $this->assertEquals(getenv('OCI_AVAILABILITY_DOMAIN'), $responseArray['availabilityDomain']);
+            $this->assertEquals(getenv('OCI_TENANCY_ID'), $responseArray['compartmentId']);
+            $this->assertEquals(getenv('OCI_IMAGE_ID'), $responseArray['imageId']);
+            $this->assertEquals(getenv('OCI_SHAPE'), $responseArray['shape']);
+        } else {
+            $this->assertEquals('LimitExceeded', $responseArray['code']);
+            $this->assertTrue(strpos($responseArray['message'], 'The following service limits were exceeded') === 0);
+        }
     }
 }
