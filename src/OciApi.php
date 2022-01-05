@@ -5,6 +5,7 @@ namespace Hitrov;
 
 
 use Hitrov\Exception\ApiCallException;
+use Hitrov\Exception\CurlException;
 use Hitrov\OCI\Signer;
 use JsonException;
 
@@ -167,6 +168,7 @@ EOD;
      * @throws OCI\Exception\PrivateKeyFileNotFoundException
      * @throws OCI\Exception\SignerValidateException
      * @throws OCI\Exception\SigningValidationFailedException
+     * @throws CurlException
      */
     private function call(
         OciConfig $config,
@@ -207,48 +209,7 @@ EOD;
             $curlOptions[CURLOPT_POSTFIELDS] = $body;
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, $curlOptions);
-
-        return $this->getResponse($curl);
-    }
-
-    /**
-     * @param resource $curl
-     * @return array
-     * @throws ApiCallException
-     * @throws JsonException
-     */
-    private function getResponse($curl): array
-    {
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        $errNo = curl_errno($curl);
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-
-        if ($response === false || ($error && $errNo)) {
-            throw new ApiCallException("curl error occurred: $error, response: $response", $errNo);
-        }
-
-        $responseArray = json_decode($response, true);
-        $jsonError = json_last_error();
-        $logResponse = $response;
-        if (!$jsonError) {
-            $logResponse = json_encode($responseArray, JSON_PRETTY_PRINT);
-        }
-        $exceptionMessage = "Error response: \n$logResponse\n, code: {$info['http_code']}";
-
-        if ($info['http_code'] < 200 || $info['http_code'] >= 300) {
-            throw new ApiCallException($exceptionMessage);
-        }
-
-        if ($jsonError) {
-            $jsonErrorMessage = json_last_error_msg();
-            throw new JsonException("JSON error occurred: $jsonError ($jsonErrorMessage), response: \n$logResponse");
-        }
-
-        return $responseArray;
+        return HttpClient::getResponse($curlOptions);
     }
 
     private function getBaseApiUrl(OciConfig $config, string $api = 'iaas'): string

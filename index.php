@@ -12,8 +12,13 @@ use Hitrov\OciApi;
 use Hitrov\OciConfig;
 
 /*
- * availabilityDomain(s) now optional,
- * but you can provide either string or array
+ * availabilityDomain(s) now optional for ARM,
+ * but you can provide either string or array.
+ * if null or '' is provided, ListAvailabilityDomains API call be used for retrieval.
+ * @see https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/AvailabilityDomain/ListAvailabilityDomains
+ *
+ * NB! AMD (x86) Always Free instances should be created only in "main" availability domain.
+ * Specify manually in this case.
  */
 $config1 = new OciConfig(
     getenv('OCI_REGION') ?: 'us-phoenix-1', // region
@@ -21,7 +26,7 @@ $config1 = new OciConfig(
     getenv('OCI_TENANCY_ID') ?: 'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy
     getenv('OCI_KEY_FINGERPRINT') ?: '42:b1:***:5b:2c', // fingerprint
     getenv('OCI_PRIVATE_KEY_FILENAME') ?: "oracleidentitycloudservice_oracle-***.pem", // key_file
-    getenv('OCI_AVAILABILITY_DOMAIN'), // availabilityDomain(s): 'jYtI:PHX-AD-1' or ['jYtI:PHX-AD-1','jYtI:PHX-AD-2'] or null
+    getenv('OCI_AVAILABILITY_DOMAIN'), // availabilityDomain(s): null or '' or 'jYtI:PHX-AD-1' or ['jYtI:PHX-AD-1','jYtI:PHX-AD-2']
     getenv('OCI_SUBNET_ID') ?: 'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
     getenv('OCI_IMAGE_ID') ?: 'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
     (int) getenv('OCI_OCPUS') ?: 4,
@@ -34,6 +39,9 @@ $configs = [
 ];
 
 $api = new OciApi();
+$notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
+    return new \Hitrov\Notification\Telegram();
+})();
 
 foreach ($configs as $config) {
     $shape = getenv('OCI_SHAPE') ?: 'VM.Standard.A1.Flex'; // or VM.Standard.E2.1.Micro
@@ -65,16 +73,33 @@ foreach ($configs as $config) {
 
     foreach ($availabilityDomains as $availabilityDomainEntity) {
         try {
-            $instance = $api->createInstance($config, $shape, $sshKey, $availabilityDomainEntity['name']);
+            $instanceDetails = $api->createInstance($config, $shape, $sshKey, $availabilityDomainEntity['name']);
         } catch(ApiCallException $e) {
-            echo "{$e->getMessage()}\n";
+            if (
+                $e->getCode() === 500 &&
+                strpos($e->getMessage(), 'InternalError') !== false &&
+                strpos($e->getMessage(), 'Out of host capacity') !== false
+            ) {
 
-            // try another availability domain
-            continue;
+                if ($notifier->isSupported()) {
+                    $notifier->notify($e->getMessage());
+                }
+                // trying next availability domain
+                continue;
+            }
+
+            echo $e->getMessage() . "\n";
+            // current config is broken
+            break;
+        }
+
+        $message = json_encode($instanceDetails, JSON_PRETTY_PRINT);
+        if ($notifier->isSupported()) {
+            $notifier->notify($message);
         }
 
         // success
-        echo json_encode($instance, JSON_PRETTY_PRINT) . "\n";
+        echo $message . "\n";
 
         break;
     }
