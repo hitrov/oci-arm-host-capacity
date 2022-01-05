@@ -32,9 +32,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Install dependencies
-        run: |
-          composer update --prefer-dist --no-progress
+#      - name: Install dependencies
+#        run: |
+#          composer update --prefer-dist --no-progress
       - name: Run script
         run: |
           php index.php
