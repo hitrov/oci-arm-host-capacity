@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace Hitrov;
 
 
+use Hitrov\Exception\ApiCallException;
+use Hitrov\Exception\CurlException;
 use Hitrov\OCI\Signer;
+use JsonException;
 
 class OciApi
 {
@@ -13,14 +16,27 @@ class OciApi
      */
     private $existingInstances;
 
-    public function createInstance(OciConfig $config, string $shape, string $sshKey): array
+    /**
+     * @param OciConfig $config
+     * @param string $shape
+     * @param string $sshKey
+     * @param string $availabilityDomain
+     * @return array
+     *
+     * @throws ApiCallException
+     * @throws JsonException
+     * @throws OCI\Exception\PrivateKeyFileNotFoundException
+     * @throws OCI\Exception\SignerValidateException
+     * @throws OCI\Exception\SigningValidationFailedException
+     */
+    public function createInstance(
+        OciConfig $config,
+        string $shape,
+        string $sshKey,
+        string $availabilityDomain
+    ): array
     {
-        $curl = curl_init();
-
-        $method = 'POST';
-        $url = $this->getApiUrl($config);
-
-        $displayName = 'instance-20210714-1042';
+        $displayName = 'instance-' . date('Ymd-Hi');
 
         $body = <<<EOD
 {
@@ -30,7 +46,7 @@ class OciApi
     "shape": "$shape",
     "compartmentId": "{$config->tenancyId}",
     "displayName": "$displayName",
-    "availabilityDomain": "{$config->availabilityDomain}",
+    "availabilityDomain": "$availabilityDomain",
     "sourceDetails": {
         "sourceType": "image",
         "imageId": "{$config->imageId}"
@@ -65,76 +81,27 @@ class OciApi
 }
 EOD;
 
-        $signer = new Signer(
-            $config->tenancyId,
-            $config->ociUserId,
-            $config->keyFingerPrint,
-            $config->privateKeyFilename
-        );
+        $baseUrl = "{$this->getBaseApiUrl($config)}/instances/";
 
-        $headers = $signer->getHeaders($url, $method, $body, 'application/json');
-
-        $curlOptions = [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 5,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTPHEADER => $headers,
-        ];
-
-        $curlOptions[CURLOPT_POSTFIELDS] = $body;
-
-        curl_setopt_array($curl, $curlOptions);
-
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        $info = curl_getinfo($curl);
-
-        curl_close($curl);
-
-        return [ $response, $error, $info ];
+        return $this->call($config, $baseUrl, 'POST', $body);
     }
 
+    /**
+     * @param OciConfig $config
+     * @return array
+     *
+     * @throws ApiCallException
+     * @throws JsonException
+     * @throws OCI\Exception\PrivateKeyFileNotFoundException
+     * @throws OCI\Exception\SignerValidateException
+     * @throws OCI\Exception\SigningValidationFailedException
+     */
     public function getInstances(OciConfig $config): array
     {
-        $curl = curl_init();
+        $baseUrl = "{$this->getBaseApiUrl($config)}/instances/";
+        $params = ['compartmentId' => $config->tenancyId];
 
-        $baseUrl = $this->getApiUrl($config);
-        $url = "$baseUrl?availabilityDomain={$config->availabilityDomain}&compartmentId={$config->tenancyId}";
-
-        $signer = new Signer(
-            $config->tenancyId,
-            $config->ociUserId,
-            $config->keyFingerPrint,
-            $config->privateKeyFilename
-        );
-
-        $headers = $signer->getHeaders($url);
-
-        $curlOptions = [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 5,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_HTTPHEADER => $headers,
-        ];
-
-        curl_setopt_array($curl, $curlOptions);
-
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        $info = curl_getinfo($curl);
-
-        curl_close($curl);
-
-        return [ $response, $error, $info ];
+        return $this->call($config, $baseUrl, 'GET', null, $params);
     }
 
     public function checkExistingInstances(OciConfig $config, array $listResponse, string $shape, int $maxRunningInstancesOfThatShape): string
@@ -162,9 +129,22 @@ EOD;
         return "Already have an instance(s) [$displayNamesString] in state(s) (respectively) [$lifecycleStatesString]. User: $config->ociUserId\n";
     }
 
-    private function getApiUrl(OciConfig $config): string
+    /**
+     * @param OciConfig $config
+     * @return array
+     *
+     * @throws ApiCallException
+     * @throws JsonException
+     * @throws OCI\Exception\PrivateKeyFileNotFoundException
+     * @throws OCI\Exception\SignerValidateException
+     * @throws OCI\Exception\SigningValidationFailedException
+     */
+    public function getAvailabilityDomains(OciConfig $config): array
     {
-        return "https://iaas.{$config->region}.oraclecloud.com/20160918/instances/";
+        $baseUrl = "{$this->getBaseApiUrl($config, 'identity')}/availabilityDomains/";
+        $params = ['compartmentId' => $config->tenancyId];
+
+        return $this->call($config, $baseUrl, 'GET', null, $params);
     }
 
     /**
@@ -173,5 +153,67 @@ EOD;
     public function getExistingInstances(): array
     {
         return $this->existingInstances;
+    }
+
+    /**
+     * @param OciConfig $config
+     * @param string $baseUrl
+     * @param string $method
+     * @param string|null $body
+     * @param array $params
+     * @return array
+     *
+     * @throws ApiCallException
+     * @throws JsonException
+     * @throws OCI\Exception\PrivateKeyFileNotFoundException
+     * @throws OCI\Exception\SignerValidateException
+     * @throws OCI\Exception\SigningValidationFailedException
+     * @throws CurlException
+     */
+    private function call(
+        OciConfig $config,
+        string $baseUrl = '',
+        string $method = 'GET',
+        string $body = null,
+        array $params = []
+    )
+    {
+        $paramsString = '';
+        if ($params) {
+            $paramsString = '?' . http_build_query($params);
+        }
+
+        $url = "$baseUrl$paramsString";
+
+        $signer = new Signer(
+            $config->tenancyId,
+            $config->ociUserId,
+            $config->keyFingerPrint,
+            $config->privateKeyFilename
+        );
+
+        $headers = $signer->getHeaders($url, $method, $body, 'application/json');
+
+        $curlOptions = [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_MAXREDIRS => 1,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $headers,
+        ];
+
+        if ($body) {
+            $curlOptions[CURLOPT_POSTFIELDS] = $body;
+        }
+
+        return HttpClient::getResponse($curlOptions);
+    }
+
+    private function getBaseApiUrl(OciConfig $config, string $api = 'iaas'): string
+    {
+        return "https://$api.{$config->region}.oraclecloud.com/20160918";
     }
 }

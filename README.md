@@ -63,8 +63,14 @@ You need to slightly adjust index.php file - by changing OciConfig construct
 
 Arguments 1–5 (region, user, tenancy, fingerprint, path to private key) should be taken from textarea during API key generation step.
 
-### Adjust OciConfig arguments 6-8
+Instead of manually changing script file, you can set the number of environment variables:
+- `OCI_REGION`
+- `OCI_USER_ID`
+- `OCI_TENANCY_ID`
+- `OCI_KEY_FINGERPRINT`
+- `OCI_PRIVATE_KEY_FILENAME`
 
+### Adjust OciConfig arguments 6-8
 In order to acquire availabilityDomain, subnetId, imageId you must start instance creation process from the OCI Console in the browser (Menu -> Compute -> Instances -> Create Instance)
 
 Change image and shape and make sure that "Always Free Eligible" availabilityDomain label is there:
@@ -87,6 +93,13 @@ Adjust Networking section, set "Do not assign a public IPv4 address" checkbox. I
 
 OciConfig also has the last two arguments - ocpus and memoryInGBs (respectively). They are optional and are equals 4 and 24 by default. Of course, you can adjust them.  Possible values are 1/6, 2/12, 3/18 and 2/24, respectively. Please notice that "Oracle Linux Cloud Developer" image can be created with at least 8GB of RAM.
 
+Instead of manually changing script file, you can set the number of environment variables:
+- `OCI_AVAILABILITY_DOMAIN`
+- `OCI_SUBNET_ID`
+- `OCI_IMAGE_ID`
+- `OCI_OCPUS`
+- `OCI_MEMORY_IN_GBS`
+
 ### Set public key value
 
 In order to have secure shell (SSH) access to the instance you need to have a keypair, e.g. ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub. Second one (public key) filename should be provided to a command below. The are plenty of tutorials on how to do that, we won't cover this part here.
@@ -100,7 +113,13 @@ php /path/to/oci-arm-host-capacity/index.php
 ```
 
 I bet that the output (error) will be similar to the one in a browser a few minutes ago
-
+```json
+{
+    "code": "InternalError",
+    "message": "Out of host capacity."
+}
+```
+or if you already have instances:
 ```json
 {
     "code": "LimitExceeded",

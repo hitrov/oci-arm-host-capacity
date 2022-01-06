@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Hitrov\Test;
 
 
+use Hitrov\Exception\ApiCallException;
 use Hitrov\OciApi;
 use Hitrov\OciConfig;
 use PHPUnit\Framework\TestCase;
@@ -14,9 +15,7 @@ class OciApiTest extends TestCase
 
     private static OciApi $api;
     private static OciConfig $config;
-    private static array $listResponse;
-    private static string $existingInstancesErrorMessage;
-    private static array $existingInstances;
+    private static array $instances;
 
     /**
      * This method is called before each test.
@@ -42,15 +41,27 @@ class OciApiTest extends TestCase
     /**
      * @covers OciApi::getInstances
      */
+    public function testGetAvailabilityDomains(): void
+    {
+        $availabilityDomains = self::$api->getAvailabilityDomains(self::$config);
+
+        $this->assertCount(3, $availabilityDomains);
+        $this->assertCount(1, array_filter($availabilityDomains, function(array $availabilityDomain) {
+            return $availabilityDomain['name'] === getenv('AD_ALWAYS_FREE');
+        }));
+    }
+
+    /**
+     * @covers OciApi::getInstances
+     */
     public function testGetInstances(): void
     {
-        [ $listResponse, $listError, $listInfo ] = self::$api->getInstances(self::$config);
+        self::$instances = self::$api->getInstances(self::$config);
 
-        self::$listResponse = json_decode($listResponse, true);
-
-        $this->assertEmpty(json_last_error());
-        $this->assertNotEmpty(self::$listResponse);
-        $this->assertEquals(getenv('OCI_AVAILABILITY_DOMAIN'), self::$listResponse[0]['availabilityDomain']);
+        $this->assertNotEmpty(self::$instances);
+        $this->assertNotEmpty(array_filter(self::$instances, function(array $instance) {
+            return $instance['availabilityDomain'] === getenv('AD_ALWAYS_FREE');
+        }));
     }
 
     /**
@@ -58,14 +69,14 @@ class OciApiTest extends TestCase
      */
     public function testCheckExistingInstances(): void
     {
-        self::$existingInstancesErrorMessage = self::$api->checkExistingInstances(
+        $existingInstancesErrorMessage = self::$api->checkExistingInstances(
             self::$config,
-            self::$listResponse,
+            self::$instances,
             getenv('OCI_SHAPE'),
             (int) getenv('OCI_MAX_INSTANCES'),
         );
-        self::$existingInstances = self::$api->getExistingInstances();
-        $this->assertEquals(0, strpos(self::$existingInstancesErrorMessage, self::HAVE_INSTANCE));
+
+        $this->assertEquals(0, strpos($existingInstancesErrorMessage, self::HAVE_INSTANCE));
     }
 
     /**
@@ -73,21 +84,22 @@ class OciApiTest extends TestCase
      */
     public function testCreateInstance(): void
     {
-        [ $response, $listError, $listInfo ] = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'));
-        $responseArray = json_decode($response, true);
-        $this->assertNotEmpty($responseArray);
+        $config = clone self::$config;
+        $config->imageId = getenv('TEST_IMAGE_ID');
+        $config->subnetId = getenv('TEST_SUBNET_ID');
+        $config->ocpus = 1;
+        $config->memoryInGBs = 1;
 
-        $existingInstancesNumber = count(self::$existingInstances);
-        $maxInstances = (int) getenv('OCI_MAX_INSTANCES');
-
-        if (self::$existingInstancesErrorMessage && $existingInstancesNumber < $maxInstances) {
-            $this->assertEquals(getenv('OCI_AVAILABILITY_DOMAIN'), $responseArray['availabilityDomain']);
-            $this->assertEquals(getenv('OCI_TENANCY_ID'), $responseArray['compartmentId']);
-            $this->assertEquals(getenv('OCI_IMAGE_ID'), $responseArray['imageId']);
-            $this->assertEquals(getenv('OCI_SHAPE'), $responseArray['shape']);
-        } else {
-            $this->assertEquals('LimitExceeded', $responseArray['code']);
-            $this->assertTrue(strpos($responseArray['message'], 'The following service limits were exceeded') === 0);
+        $exceptionThrown = false;
+        try {
+            $instance = self::$api->createInstance($config, 'VM.Standard.E2.1.Micro', getenv('OCI_SSH_PUBLIC_KEY'), getenv('AD_ALWAYS_FREE'));
+        } catch(ApiCallException $e) {
+            $response = $e->getMessage();
+            $this->assertEquals(400, $e->getCode());
+            $this->assertTrue(strpos($response, 'LimitExceeded') !== false);
+            $this->assertTrue(strpos($response, 'The following service limits were exceeded') !== false);
+            $exceptionThrown = true;
         }
+        $this->assertTrue($exceptionThrown);
     }
 }
