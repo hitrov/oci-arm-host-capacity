@@ -61,6 +61,8 @@ jobs:
           TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
           TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY }}
           AD_ALWAYS_FREE: ${{ secrets.AD_ALWAYS_FREE }}
+          TEST_IMAGE_ID: ${{ secrets.TEST_IMAGE_ID }}
+          TEST_SUBNET_ID: ${{ secrets.TEST_SUBNET_ID }}
 
 #      - name: Run script
 #        run: |

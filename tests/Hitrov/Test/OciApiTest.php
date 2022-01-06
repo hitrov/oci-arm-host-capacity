@@ -84,32 +84,22 @@ class OciApiTest extends TestCase
      */
     public function testCreateInstance(): void
     {
-        $availabilityDomain = getenv('AD_ALWAYS_FREE');
+        $config = clone self::$config;
+        $config->imageId = getenv('TEST_IMAGE_ID');
+        $config->subnetId = getenv('TEST_SUBNET_ID');
+        $config->ocpus = 1;
+        $config->memoryInGBs = 1;
 
+        $exceptionThrown = false;
         try {
-            $instance = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), $availabilityDomain);
+            $instance = self::$api->createInstance($config, 'VM.Standard.E2.1.Micro', getenv('OCI_SSH_PUBLIC_KEY'), getenv('AD_ALWAYS_FREE'));
         } catch(ApiCallException $e) {
             $response = $e->getMessage();
-            $httpCode = $e->getCode();
-            switch ($httpCode) {
-                case 500:
-                    $this->assertTrue(strpos($response, 'InternalError') !== false);
-                    $this->assertTrue(strpos($response, 'Out of host capacity') !== false);
-                    break;
-                default:
-                    $this->assertEquals(400, $httpCode);
-                    $this->assertTrue(strpos($response, 'LimitExceeded') !== false);
-                    $this->assertTrue(strpos($response, 'The following service limits were exceeded') !== false);
-                    break;
-            }
-
-            return;
+            $this->assertEquals(400, $e->getCode());
+            $this->assertTrue(strpos($response, 'LimitExceeded') !== false);
+            $this->assertTrue(strpos($response, 'The following service limits were exceeded') !== false);
+            $exceptionThrown = true;
         }
-
-        $this->assertNotEmpty($instance);
-        $this->assertEquals($availabilityDomain, $instance['availabilityDomain']);
-        $this->assertEquals(getenv('OCI_TENANCY_ID'), $instance['compartmentId']);
-        $this->assertEquals(getenv('OCI_IMAGE_ID'), $instance['imageId']);
-        $this->assertEquals(getenv('OCI_SHAPE'), $instance['shape']);
+        $this->assertTrue($exceptionThrown);
     }
 }
