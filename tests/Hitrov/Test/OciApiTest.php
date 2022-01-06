@@ -90,9 +90,18 @@ class OciApiTest extends TestCase
             $instance = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), $availabilityDomain);
         } catch(ApiCallException $e) {
             $response = $e->getMessage();
-            $this->assertEquals(400, $e->getCode());
-            $this->assertTrue(strpos($response, 'LimitExceeded') !== false);
-            $this->assertTrue(strpos($response, 'The following service limits were exceeded') !== false);
+            $httpCode = $e->getCode();
+            switch ($httpCode) {
+                case 500:
+                    $this->assertTrue(strpos($response, 'InternalError') !== false);
+                    $this->assertTrue(strpos($response, 'Out of host capacity') !== false);
+                    break;
+                default:
+                    $this->assertEquals(400, $httpCode);
+                    $this->assertTrue(strpos($response, 'LimitExceeded') !== false);
+                    $this->assertTrue(strpos($response, 'The following service limits were exceeded') !== false);
+                    break;
+            }
 
             return;
         }
