@@ -72,8 +72,9 @@ foreach ($configs as $config) {
     }
 
     foreach ($availabilityDomains as $availabilityDomainEntity) {
+        $availabilityDomain = is_array($availabilityDomainEntity) ? $availabilityDomainEntity['name'] : $availabilityDomainEntity;
         try {
-            $instanceDetails = $api->createInstance($config, $shape, $sshKey, $availabilityDomainEntity['name']);
+            $instanceDetails = $api->createInstance($config, $shape, $sshKey, $availabilityDomain);
         } catch(ApiCallException $e) {
             $message = $e->getMessage();
             echo "$message\n";
