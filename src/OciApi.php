@@ -36,7 +36,7 @@ class OciApi
         string $availabilityDomain
     ): array
     {
-        $displayName = 'instance-20210714-1042';
+        $displayName = 'instance-' . date('Ymd-Hi');
 
         $body = <<<EOD
 {
