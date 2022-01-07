@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - main
+      - test-run-script
   pull_request:
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['7.4', '8.0']
+        php-versions: ['7.4']
     name: integration-tests (PHP ${{ matrix.php-versions }})
     steps:
       - uses: actions/checkout@v1
@@ -41,9 +41,9 @@ jobs:
       - name: Install dependencies
         run: |
           composer update --prefer-dist --no-progress
-      - name: Run test suite
+      - name: Run run script
         run: |
-          vendor/bin/phpunit --color tests/
+          php index.php
         env:
           OCI_REGION: ${{ secrets.OCI_REGION }}
           OCI_USER_ID: ${{ secrets.OCI_USER_ID }}
