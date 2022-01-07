@@ -19,6 +19,8 @@ use Hitrov\OciConfig;
  *
  * NB! AMD (x86) Always Free instances should be created only in "main" availability domain.
  * Specify manually in this case.
+ *
+ * Setting OCI_AVAILABILITY_DOMAIN env var as any type of array or comma separated strings is not supported
  */
 $config1 = new OciConfig(
     getenv('OCI_REGION') ?: 'us-phoenix-1', // region
