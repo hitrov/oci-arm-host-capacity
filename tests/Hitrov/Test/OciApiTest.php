@@ -22,6 +22,8 @@ class OciApiTest extends TestCase
      */
     protected function setUp(): void
     {
+        $this->setEnv();
+
         self::$config = new OciConfig(
             getenv('OCI_REGION'),
             getenv('OCI_USER_ID'),
@@ -32,9 +34,8 @@ class OciApiTest extends TestCase
             getenv('OCI_SUBNET_ID'),
             getenv('OCI_IMAGE_ID'),
             (int) getenv('OCI_OCPUS'),
-            (int) getenv('OCI_MEMORY_IN_GBS'),
+            (int) getenv('OCI_MEMORY_IN_GBS')
         );
-
         self::$api = new OciApi();
     }
 
@@ -47,7 +48,7 @@ class OciApiTest extends TestCase
 
         $this->assertCount(3, $availabilityDomains);
         $this->assertCount(1, array_filter($availabilityDomains, function(array $availabilityDomain) {
-            return $availabilityDomain['name'] === getenv('AD_ALWAYS_FREE');
+            return $availabilityDomain['name'] === getenv('OCI_AVAILABILITY_DOMAIN');
         }));
     }
 
@@ -60,7 +61,7 @@ class OciApiTest extends TestCase
 
         $this->assertNotEmpty(self::$instances);
         $this->assertNotEmpty(array_filter(self::$instances, function(array $instance) {
-            return $instance['availabilityDomain'] === getenv('AD_ALWAYS_FREE');
+            return $instance['availabilityDomain'] === getenv('OCI_AVAILABILITY_DOMAIN');
         }));
     }
 
@@ -84,15 +85,9 @@ class OciApiTest extends TestCase
      */
     public function testCreateInstance(): void
     {
-        $config = clone self::$config;
-        $config->imageId = getenv('TEST_IMAGE_ID');
-        $config->subnetId = getenv('TEST_SUBNET_ID');
-        $config->ocpus = 1;
-        $config->memoryInGBs = 1;
-
         $exceptionThrown = false;
         try {
-            $instance = self::$api->createInstance($config, 'VM.Standard.E2.1.Micro', getenv('OCI_SSH_PUBLIC_KEY'), getenv('AD_ALWAYS_FREE'));
+            $instance = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
         } catch(ApiCallException $e) {
             $response = $e->getMessage();
             $this->assertEquals(400, $e->getCode());
@@ -101,5 +96,15 @@ class OciApiTest extends TestCase
             $exceptionThrown = true;
         }
         $this->assertTrue($exceptionThrown);
+    }
+
+    protected function setEnv(): void
+    {
+        putenv('OCI_SHAPE=VM.Standard.E2.1.Micro');
+        putenv('OCI_OCPUS=1');
+        putenv('OCI_MEMORY_IN_GBS=1');
+        putenv('OCI_AVAILABILITY_DOMAIN=FeVO:EU-FRANKFURT-1-AD-2');
+        putenv('OCI_IMAGE_ID=ocid1.image.oc1.eu-frankfurt-1.aaaaaaaado5423wtoss2ogoj2xpr4wssqsfy7yeafyekiywhuep7wnvwpvuq');
+        putenv('OCI_SUBNET_ID=ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaahbb6t2jetpfmfi5kn7ypi4w6pn3qt6s3k4xzvwxmjt3tjmv3faq');
     }
 }
