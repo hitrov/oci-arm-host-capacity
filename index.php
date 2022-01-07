@@ -26,7 +26,7 @@ $config1 = new OciConfig(
     getenv('OCI_TENANCY_ID') ?: 'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy
     getenv('OCI_KEY_FINGERPRINT') ?: '42:b1:***:5b:2c', // fingerprint
     getenv('OCI_PRIVATE_KEY_FILENAME') ?: "oracleidentitycloudservice_oracle-***.pem", // key_file
-    getenv('OCI_AVAILABILITY_DOMAIN') ?: null, // availabilityDomain(s): null or '' or 'jYtI:PHX-AD-1' or ['jYtI:PHX-AD-1','jYtI:PHX-AD-2']
+    'FeVO:EU-FRANKFURT-1-AD-2',
     getenv('OCI_SUBNET_ID') ?: 'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
     getenv('OCI_IMAGE_ID') ?: 'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
     (int) getenv('OCI_OCPUS') ?: 4,
