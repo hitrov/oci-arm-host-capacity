@@ -7,32 +7,25 @@ $pathPrefix = ''; // e.g. /usr/share/nginx/oci-arm-host-capacity/
 
 require "{$pathPrefix}vendor/autoload.php";
 
+use Dotenv\Dotenv;
 use Hitrov\Exception\ApiCallException;
 use Hitrov\OciApi;
 use Hitrov\OciConfig;
 
-/*
- * availabilityDomain(s) now optional for ARM,
- * but you can provide either string or array.
- * if null or '' is provided, ListAvailabilityDomains API call be used for retrieval.
- * @see https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/AvailabilityDomain/ListAvailabilityDomains
- *
- * NB! AMD (x86) Always Free instances should be created only in "main" availability domain.
- * Specify manually in this case.
- *
- * Setting OCI_AVAILABILITY_DOMAIN env var as any type of array or comma separated strings is not supported
- */
+$dotenv = Dotenv::createUnsafeImmutable(__DIR__);
+$dotenv->safeLoad();
+
 $config1 = new OciConfig(
-    getenv('OCI_REGION') ?: 'us-phoenix-1', // region
-    getenv('OCI_USER_ID') ?: 'ocid1.user.oc1..aaaaaaaa***', // user
-    getenv('OCI_TENANCY_ID') ?: 'ocid1.tenancy.oc1..aaaaaaaaa***', // tenancy
-    getenv('OCI_KEY_FINGERPRINT') ?: '42:b1:***:5b:2c', // fingerprint
-    getenv('OCI_PRIVATE_KEY_FILENAME') ?: "oracleidentitycloudservice_oracle-***.pem", // key_file
-    getenv('OCI_AVAILABILITY_DOMAIN') ?: null, // availabilityDomain(s): null or '' or 'jYtI:PHX-AD-1' or ['jYtI:PHX-AD-1','jYtI:PHX-AD-2']
-    getenv('OCI_SUBNET_ID') ?: 'ocid1.subnet.oc1.phx.aaaaaaaa***', // subnetId
-    getenv('OCI_IMAGE_ID') ?: 'ocid1.image.oc1.phx.aaaaaaaay***', // imageId
-    (int) getenv('OCI_OCPUS') ?: 4,
-    (int) getenv('OCI_MEMORY_IN_GBS') ?: 24
+    getenv('OCI_REGION'),
+    getenv('OCI_USER_ID'),
+    getenv('OCI_TENANCY_ID'),
+    getenv('OCI_KEY_FINGERPRINT'),
+    getenv('OCI_PRIVATE_KEY_FILENAME'),
+    getenv('OCI_AVAILABILITY_DOMAIN') ?: null, // null or '' or 'jYtI:PHX-AD-1' or ['jYtI:PHX-AD-1','jYtI:PHX-AD-2']
+    getenv('OCI_SUBNET_ID'),
+    getenv('OCI_IMAGE_ID'),
+    (int) getenv('OCI_OCPUS'),
+    (int) getenv('OCI_MEMORY_IN_GBS')
 );
 
 $configs = [
@@ -46,7 +39,7 @@ $notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
 })();
 
 foreach ($configs as $config) {
-    $shape = getenv('OCI_SHAPE') ?: 'VM.Standard.A1.Flex'; // or VM.Standard.E2.1.Micro
+    $shape = getenv('OCI_SHAPE');
 
     $maxRunningInstancesOfThatShape = 1;
     if (getenv('OCI_MAX_INSTANCES') !== false) {
@@ -61,7 +54,7 @@ foreach ($configs as $config) {
         continue;
     }
 
-    $sshKey = getenv('OCI_SSH_PUBLIC_KEY') ?: 'ssh-rsa AAAAB3NzaC1...p5m8= ubuntu@localhost'; // ~/.ssh/id_rsa.pub contents
+    $sshKey = getenv('OCI_SSH_PUBLIC_KEY');
 
     if (!empty($config->availabilityDomains)) {
         if (is_array($config->availabilityDomains)) {
