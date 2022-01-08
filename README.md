@@ -245,11 +245,13 @@ In order to test the script using GitHub runners (their virtual machines) please
 
 ![New Repository Secret](images/new-repository-secret.png)
 
-5. As for the private key, upload it in the bucket and `Create Pre-Authenticated Request`. 
+5. As for the private key, you have 2 options. Either:
+- upload to any web server accessible from the Internet by using just URL or...
+- upload in the [bucket](https://cloud.oracle.com/object-storage/buckets) and `Create Pre-Authenticated Request`. 
 
 ![Create Pre-Authenticated Request](images/create-par.png)
 
-6. Copy and put that URL as `OCI_PRIVATE_KEY_FILENAME` GitHub secret.
+6. Copy and save the URL from (5) as `OCI_PRIVATE_KEY_FILENAME` GitHub secret.
 7. Go to any other directory e.g. `cd /Users/hitrov`
 8. `git clone https://github.com/{your-username}/oci-arm-host-capacity`
 9. Adjust the file `.github/workflows/tests.yml` according to [this commit](https://github.com/hitrov/oci-arm-host-capacity/commit/67fe41ebfb9f385ae1614c97b74195ea318c8db7), just execute:
