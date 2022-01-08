@@ -17,12 +17,26 @@ YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgj
 
 - [Generating API key](#generating-api-key)
 - [Installation](#installation)
-- [Adjust script file](#adjust-script-file)
-  - [Adjust OciConfig arguments 1–5](#adjust-ociconfig-arguments-15)
-  - [Adjust OciConfig arguments 6-8](#adjust-ociconfig-arguments-6-8)
-  - [Set public key value](#set-public-key-value)
+- [Configuration](#adjust-script-file)
+  - [Create/copy .env file](#createcopy-env-file)
+  - [General](#general)
+  - [Private key](#private-key)
+  - [Instance parameters](#instance-parameters)
+    - [Mandatory](#mandatory)
+      - [OCI_SUBNET_ID and OCI_IMAGE_ID](#oci_subnet_id-and-oci_image_id)
+      - [OCI_SSH_PUBLIC_KEY (SSH access)](#oci_ssh_public_key-ssh-access)
+    - [Optional](#optional)
 - [Running the script](#running-the-script)
+- [Periodic job setup (cron)](#periodic-job-setup-cron)
+  - [Linux / WSL](#linux--wsl)
+  - [GitHub actions (workflows)](#github-actions-workflows)
+    - [Setup](#setup)
+    - [Read This Carefully](#read-this-carefully)
+- [How it works](#how-it-works)
 - [Assigning public IP address](#assigning-public-ip-address)
+- [Troubleshooting](#troubleshooting)
+  - [Private key issues](#private-key-issues)
+  - [SSH key issues](#ssh-key-issues)
 - [Conclusion](#conclusion)
 
 ## Generating API key
@@ -55,27 +69,45 @@ cd oci-arm-host-capacity/
 composer install
 ```
 
-## Adjust script file
+## Configuration
 
-You need to slightly adjust index.php file - by changing OciConfig constructor arguments.
+### Create/copy .env file
 
-### Adjust OciConfig arguments 1–5
+Copy `.env.example` as `.env`
+```bash
+cp .env.example .env
+```
+You must modify `.env` file below. **Don't push/share it as it possibly contains sensitive information.** 
 
-Arguments 1–5 (region, user, tenancy, fingerprint, path to private key) should be taken from textarea during API key generation step.
+All parameters except `OCI_AVAILABILITY_DOMAIN` are mandatory to be set. Please read the comments in `.env` file as well.
 
-Instead of manually changing script file, you can set the number of environment variables:
+### General
+
+Region, user, tenancy, fingerprint should be taken from textarea during API key generation step.
+Adjust these values in `.env` file accordingly:
 - `OCI_REGION`
 - `OCI_USER_ID`
 - `OCI_TENANCY_ID`
 - `OCI_KEY_FINGERPRINT`
-- `OCI_PRIVATE_KEY_FILENAME`
 
-### Adjust OciConfig arguments 6-8
-In order to acquire availabilityDomain, subnetId, imageId you must start instance creation process from the OCI Console in the browser (Menu -> Compute -> Instances -> Create Instance)
+### Private key
 
-Change image and shape and make sure that "Always Free Eligible" availabilityDomain label is there:
+`OCI_PRIVATE_KEY_FILENAME` is an absolute path (including directories) or direct public accessible URL to your *.pem private key file.
+
+### Instance parameters
+
+#### Mandatory
+
+##### OCI_SUBNET_ID and OCI_IMAGE_ID
+
+You must start instance creation process from the OCI Console in the browser (Menu -> Compute -> Instances -> Create Instance)
+
+Change image and shape. 
+For Always free AMD x64 - make sure that "Always Free Eligible" availabilityDomain label is there:
 
 ![Changing image and shape](images/create-compute-instance.png)
+
+ARMs can be created anywhere within your home region.
 
 Adjust Networking section, set "Do not assign a public IPv4 address" checkbox. If you don't have existing VNIC/subnet, please create VM.Standard.E2.1.Micro instance before doing everything.
 
@@ -85,31 +117,57 @@ Adjust Networking section, set "Do not assign a public IPv4 address" checkbox. I
 
 ![Add SSH Keys](images/add-ssh-keys.png)
 
-…open browser's dev tools -> network tab. Click "Create" and wait a bit - most probably you'll get "Out of capacity" error. Now find /instances API call (red one)…
+…open browser's dev tools -> network tab. Click "Create" and wait a bit most probably you'll get "Out of capacity" error. Now find /instances API call (red one)…
 
 ![Dev Tools](images/dev-tools.png)
 
-…and right click on it -> copy as curl. Paste the clipboard contents in any text editor and review the - data-binary parameter. Find availabilityDomain, subnetId, imageId. Use them as 6,7 and 8 arguments, respectively, to the OciConfig constructor.
+…and right click on it -> copy as curl. Paste the clipboard contents in any text editor and review the data-binary parameter. 
+Find `subnetId`, `imageId` and set `OCI_SUBNET_ID`, `OCI_IMAGE_ID`, respectively.
 
-OciConfig also has the last two arguments - ocpus and memoryInGBs (respectively). They are optional and are equals 4 and 24 by default. Of course, you can adjust them.  Possible values are 1/6, 2/12, 3/18 and 2/24, respectively. Please notice that "Oracle Linux Cloud Developer" image can be created with at least 8GB of RAM.
+Note `availabilityDomain` for yourself, then read the corresponding comment in `.env` file regarding `OCI_AVAILABILITY_DOMAIN`.
 
-Instead of manually changing script file, you can set the number of environment variables:
-- `OCI_AVAILABILITY_DOMAIN`
-- `OCI_SUBNET_ID`
-- `OCI_IMAGE_ID`
-- `OCI_OCPUS`
-- `OCI_MEMORY_IN_GBS`
+##### OCI_SSH_PUBLIC_KEY (SSH access)
 
-### Set public key value
+In order to have secure shell (SSH) access to the instance you need to have a keypair, besically 2 files:
+- ~/.ssh/id_rsa 
+- ~/.ssh/id_rsa.pub
+Second one (public key) contents (string) should be provided to a command below. 
+The are plenty of tutorials on how to generate them (if you don't have them yet), we won't cover this part here.
 
-In order to have secure shell (SSH) access to the instance you need to have a keypair, e.g. ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub. Second one (public key) filename should be provided to a command below. The are plenty of tutorials on how to do that, we won't cover this part here.
+```bash
+cat ~/.ssh/id_rsa.pub
+```
 
-Change the string variable $sshKey - paste the contents of your public key ~/.ssh/id_rsa.pub (or you won't be able to login into the newly created instance).
+Output should be similar to
+```bash
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwZVQa+F41Jrb4X+p9gFMrrcAqh9ks8ATrcGRitK+R/ github.com@hitrov.com
+```
+
+Change `OCI_SSH_PUBLIC_KEY` inside double quotes - paste the contents above (or you won't be able to login into the newly created instance).
+**NB!** No new lines allowed!
+
+#### Optional
+
+`OCI_OCPUS` and `OCI_MEMORY_IN_GBS` are set `4` and `24` by default. Of course, you can safely adjust them. 
+Possible values are 1/6, 2/12, 3/18 and 4/24, respectively.
+Please notice that "Oracle Linux Cloud Developer" image can be created with at least 8GB of RAM (`OCI_MEMORY_IN_GBS`).
+
+If for some reason your home region is running out of Always free AMD x64 (1/8 OPCU + 1GB RAM), replace values below.
+**NB!** Setting the `OCI_AVAILABILITY_DOMAIN` to `Always Free Eligible` is mandatory for non-ARM architecture!
+```bash
+OCI_SHAPE=VM.Standard.E2.1.Micro
+OCI_OCPUS=1
+OCI_MEMORY_IN_GBS=1
+OCI_AVAILABILITY_DOMAIN=FeVO:EU-FRANKFURT-1-AD-2
+```
+
+If you don't have instances of selected shape at all, leave the value of `OCI_MAX_INSTANCES=1`. 
+When you managed to launch one and need more, set to `OCI_MAX_INSTANCES=2`. 
 
 ## Running the script
 
 ```bash
-php /path/to/oci-arm-host-capacity/index.php
+php ./index.php
 ```
 
 I bet that the output (error) will be similar to the one in a browser a few minutes ago
@@ -127,31 +185,119 @@ or if you already have instances:
 }
 ```
 
+## Periodic job setup (cron)
+
+### Linux / WSL
+
 You can now setup periodic job to run the command
 
+Create log file:
+```bash
+touch /path/to/oci-arm-host-capacity/oci.log
+```
+Set permissions for PHP script to modify it:
+```bash
+chmod 777 /path/to/oci-arm-host-capacity/oci.log
+```
+Get full path to PHP binary
+```bash
+which php
+```
+Usually that's `/usr/bin/php`
+
+Setup itself:
 ```bash
 EDITOR=nano crontab -e
 ```
-
-Add new line to execute the script every minute and log the output
-
+Add new line to execute the script every minute and append log the output:
 ```bash
-* * * * * /usr/bin/php /path/to/oci-arm-host-capacity/index.php > /path/to/script.log
+* * * * * /usr/bin/php /path/to/oci-arm-host-capacity/index.php >> /path/to/script.log
 ```
+**NB!** Use absolute paths wherever possible
 
-..and save the file.
+...and save the file (F2, press Y to confirm overwrite, then Enter).
 
-There could be cases when cron user won't have some permissions, the easiest way to solve it is to put the code into web server's accessible directory e.g. /usr/share/nginx/html and setup cron this way:
+There could be cases when cron user won't have some permissions, there're ways to solve it:
 
+1. Setup job for root user by executing `EDITOR=nano sudo crontab -e`
+2. Move this directory (`oci-arm-host-capacity`) into web server's one e.g. /usr/share/nginx/html and setup cron this way:
 ```bash
 * * * * * curl http://server.add.re.ss/oci-arm-host-capacity/index.php
 ```
-
 You can also visit the URL above and see the same command output as by running from the shell.
 
-Before the instance creation, script will call [ListInstances](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/ListInstances) OCI API method and check whether there're already existing instances with the same `$shape`, as well as number of them `$maxRunningInstancesOfThatShape`(you can safely adjust the last one if you wanna e.g. two VM.Standard.A1.Flex with 2/12 each).
+### GitHub actions (workflows)
 
-Script won't create new instance if current (actual) number return from the API exceeds the one from `$maxRunningInstancesOfThatShape` variable.
+In order to test the script using GitHub runners (their virtual machines) please complete 
+
+#### Setup
+
+1. Fork this repository
+2. Never push `.env` file, it's in `.gitignore` for a reason
+3. Instead of copying/modifying `.env` file, use `Secrets` in your own repository `Settings`:
+
+`https://github.com/{your-username}/oci-arm-host-capacity/settings/secrets/actions`
+
+4. Click `New repository secret` and set all the values (**one by one**) that you'd set in `.env` file e.g.
+
+![New Repository Secret](images/new-repository-secret.png)
+
+5. As for the private key, upload it in the bucket and `Create Pre-Authenticated Request`. 
+
+![Create Pre-Authenticated Request](images/create-par.png)
+
+6. Copy and put that URL as `OCI_PRIVATE_KEY_FILENAME` GitHub secret.
+7. Go to any other directory e.g. `cd /Users/hitrov`
+8. `git clone https://github.com/{your-username}/oci-arm-host-capacity`
+9. Adjust the file `.github/workflows/tests.yml` according to [this commit](https://github.com/hitrov/oci-arm-host-capacity/commit/67fe41ebfb9f385ae1614c97b74195ea318c8db7), just execute:
+```bash
+git checkout 67fe41ebfb9f385ae1614c97b74195ea318c8db7 -- .github/workflows/tests.yml
+```
+10. Commit and push this file
+```bash
+git commit -m "Modify workflow to test out periodic job" .github/workflows/tests.yml
+git push origin main
+```
+11. Go to `https://github.com/{your-username}/oci-arm-host-capacity/actions` and check how `Run script` job. 
+
+Here's the example https://github.com/hitrov/oci-arm-host-capacity/runs/4727904401?check_suite_focus=true
+
+![Test Periodic Job (cron)](images/test-periodic-job-cron.png)
+
+#### Read This Carefully
+
+This specific GitHub Workflows commit uses [Scheduled events](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#scheduled-events)  
+and will run the script every 5-20 minutes, depends on runners' availability. 
+
+**NB!** After you're done with testing, immediately revert this file to its previous content and push to the `main` branch 
+because infinite run actually violates the [Terms of Use](https://docs.github.com/en/github/site-policy/github-terms-for-additional-products-and-features#actions):
+```
+Actions should not be used for:
+...
+- if using GitHub-hosted runners, any other activity unrelated to the production, testing, deployment, or publication 
+of the software project associated with the repository where GitHub Actions are used.
+...
+GitHub may monitor your use...
+Misuse of GitHub Actions may result in termination of jobs, restrictions in your ability to use GitHub Actions, 
+or the disabling of repositories created to run Actions in a way that violates these Terms.
+```
+
+This is how you do:
+```bash
+git checkout HEAD~1 -- .github/workflows/tests.yml
+git commit -m "Revert workflow with periodic job tests" .github/workflows/tests.yml
+git push origin main
+```
+
+## How it works
+
+Before the instance creation, script will: 
+1. Call [ListAvailabilityDomains](https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/AvailabilityDomain/ListAvailabilityDomains) OCI API method
+2. Call [ListInstances](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/ListInstances) OCI API method
+and check whether there're already existing instances with the same `OCI_SHAPE`, 
+as well as number of them `OCI_MAX_INSTANCES` (you can safely adjust the last one if you wanna e.g. two `VM.Standard.A1.Flex` with 2/12 - 2 OCPUs and 12GB RAM - each).
+
+Script won't create new instance if current (actual) number return from the API exceeds the one from `OCI_MAX_INSTANCES` variable.
 
 In case of success the JSON output will be similar to
 
@@ -165,13 +311,71 @@ We are not doing this during the command run due to the default limitation (2 ep
 
 ![Attached VNICs](images/attached-vnics.png)
 
-Then Resources -> IPv4 Addresses -> … -> Edit
+Then Resources -> IPv4 Addresses -> Edit
 
 ![IPv4 Addresses](images/ipv4-addresses.png)
 
 Choose ephemeral and click "Update"
 
 ![Edit IP Address](images/edit-ip-address.png)
+
+## Troubleshooting
+
+### Private key issues
+- `OCI_PRIVATE_KEY_FILENAME` doesn't exist. 
+```bash
+PHP Fatal error:  Uncaught Hitrov\OCI\Exception\PrivateKeyFileNotFoundException: Private key file does not exist: /path/to/oracleidentitycloudservice_***-07-14-10-35.pem in /Users/hitrov/Sites/oci-arm-host-capacity/vendor/hitrov/oci-api-php-request-sign/src/Hitrov/OCI/Signer.php:346
+```
+Make sure path is absolute (full including directories), you should see it's content by executing:
+```bash
+cat /path/to/oracleidentitycloudservice_***-07-14-10-35.pem
+```
+If that's URL make sure it's inside double quotes, and opens without redirections or additional actions:
+```bash
+curl "https://url.to/oracleidentitycloudservice_***-07-14-10-35.pem"
+```
+- Permission denied - private key file is inaccessible for this PHP script:
+```bash
+PHP Warning:  file_get_contents(/path/to/oracleidentitycloudservice_***-07-14-10-35.pem): failed to open stream: Permission denied in /Users/hitrov/Sites/oci-arm-host-capacity/vendor/hitrov/oci-api-php-request-sign/src/Hitrov/OCI/Signer.php on line 225
+PHP Fatal error:  Uncaught TypeError: Return value of Hitrov\OCI\Signer::getPrivateKey() must be of the type string or null, bool returned in /Users/hitrov/Sites/oci-arm-host-capacity/vendor/hitrov/oci-api-php-request-sign/src/Hitrov/OCI/Signer.php:225
+```
+Fastest way to resolve:
+```bash
+chmod 777 /path/to/oracleidentitycloudservice_***-07-14-10-35.pem
+```
+
+### SSH key issues
+- If you have new line(s) / line ending(s) in `OCI_SSH_PUBLIC_KEY` you will encounter:
+```json
+{
+  "code": "InvalidParameter",
+  "message": "Unable to parse message body"
+}
+```
+- If public key is incorrect:
+```json
+{
+    "code": "InvalidParameter",
+    "message": "Invalid ssh public key; must be in base64 format"
+}
+```
+Copy the proper contents of `~/.ssh/id_rsa.pub` again and make sure it's inside double quotes. 
+Or re-generate pair of keys. Make sure you won't unintentionally overwrite your existing ones. 
+
+## Multiple configuration support
+
+If you need 2+ `.env` files (or you have multiple Oracle Cloud Infrastructure accounts), 
+run the script in a way when you pass argument with environment filename e.g. 
+```bash
+php index.php .env.my_acc1
+```
+Custom env filenames are supported only for CLI (command line interface). 
+If you call this script with browser/curl using web sapi (Apache, nginx), 
+find the best way to pass the 2nd argument here (e.g. `$_GET` parameter):
+```php
+$dotenv = Dotenv::createUnsafeImmutable(__DIR__, $envFilename);
+```
+as I don't want to overcomplicate this script for rare use cases.
 
 ## Conclusion
 
@@ -181,7 +385,8 @@ That's how you will login when instance will be created (notice opc default user
 ssh -i ~/.ssh/id_rsa opc@ip.add.re.ss
 ```
 
-If you didn't assign public IP, you can still copy internal FQDN or private IP (10.x.x.x) from the instance details page and connect from your other instance in the same VNIC. e.g.
+If you didn't assign public IP, you can still copy internal FQDN or private IP (10.x.x.x) 
+from the instance details page and connect from your other instance in the same VNIC. e.g.
 
 ```bash
 ssh -i ~/.ssh/id_rsa opc@instance-20210714-xxxx.subnet.vcn.oraclevcn.com
