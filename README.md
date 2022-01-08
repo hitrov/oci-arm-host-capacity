@@ -265,6 +265,8 @@ git push origin main
 
 Here's the example https://github.com/hitrov/oci-arm-host-capacity/runs/4727904401?check_suite_focus=true
 
+![GitHub Worflow cron](images/github-workflow-cron.png)
+
 ![Test Periodic Job (cron)](images/test-periodic-job-cron.png)
 
 #### Read This Carefully
