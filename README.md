@@ -13,11 +13,12 @@ This approach requires **PHP 7.4** or **PHP 8.0** and **composer** installed and
 
 If you prefer article style, here's a link to [Medium](https://hitrov.medium.com/resolving-oracle-cloud-out-of-capacity-issue-and-getting-free-vps-with-4-arm-cores-24gb-of-6ecd5ede6fcc?sk=01d761f7cd80c77e0fed773972f4d1a8)
 
-YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgjElc64).
+YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgjElc64) 
+is a bit outdated regarding [Configuration](#configuration) but still can be useful for the rest.
 
 - [Generating API key](#generating-api-key)
 - [Installation](#installation)
-- [Configuration](#adjust-script-file)
+- [Configuration](#configuration)
   - [Create/copy .env file](#createcopy-env-file)
   - [General](#general)
   - [Private key](#private-key)
@@ -37,6 +38,7 @@ YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgj
 - [Troubleshooting](#troubleshooting)
   - [Private key issues](#private-key-issues)
   - [SSH key issues](#ssh-key-issues)
+- [Multiple configuration support](#multiple-configuration-support)
 - [Conclusion](#conclusion)
 
 ## Generating API key
@@ -228,7 +230,8 @@ You can also visit the URL above and see the same command output as by running f
 
 ### GitHub actions (workflows)
 
-In order to test the script using GitHub runners (their virtual machines) please complete 
+In order to test the script using GitHub runners (their virtual machines) please complete [Setup](#setup). 
+**NB!** To avoid the ban of your Github account [Read This Carefully](#read-this-carefully) **!!!**
 
 #### Setup
 
@@ -266,10 +269,11 @@ Here's the example https://github.com/hitrov/oci-arm-host-capacity/runs/47279044
 
 #### Read This Carefully
 
-This specific GitHub Workflows commit uses [Scheduled events](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#scheduled-events)  
-and will run the script every 5-20 minutes, depends on runners' availability. 
+Specific GitHub Workflows [commit](https://github.com/hitrov/oci-arm-host-capacity/commit/67fe41ebfb9f385ae1614c97b74195ea318c8db7) 
+used in the [Setup](#setup) take an advantage of [Scheduled events](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#scheduled-events)  
+and **will endlessly run the script every 5-20 minutes** (how exactly often - depends on runners' availability). 
 
-**NB!** After you're done with testing, immediately revert this file to its previous content and push to the `main` branch 
+**NB!** After you're done with testing, **immediately revert .github/workflows/tests.yml** to its previous content and push to the `main` branch 
 because infinite run actually violates the [Terms of Use](https://docs.github.com/en/github/site-policy/github-terms-for-additional-products-and-features#actions):
 ```
 Actions should not be used for:
