@@ -214,7 +214,7 @@ EDITOR=nano crontab -e
 ```
 Add new line to execute the script every minute and append log the output:
 ```bash
-* * * * * /usr/bin/php /path/to/oci-arm-host-capacity/index.php >> /path/to/script.log
+* * * * * /usr/bin/php /path/to/oci-arm-host-capacity/index.php >> /path/to/oci-arm-host-capacity/oci.log
 ```
 **NB!** Use absolute paths wherever possible
 
@@ -225,7 +225,7 @@ There could be cases when cron user won't have some permissions, there're ways t
 1. Setup job for root user by executing `EDITOR=nano sudo crontab -e`
 2. Move this directory (`oci-arm-host-capacity`) into web server's one e.g. /usr/share/nginx/html and setup cron this way:
 ```bash
-* * * * * curl http://server.add.re.ss/oci-arm-host-capacity/index.php
+* * * * * curl http://server.add.re.ss/oci-arm-host-capacity/index.php >> /path/to/oci-arm-host-capacity/oci.log
 ```
 You can also visit the URL above and see the same command output as by running from the shell.
 
