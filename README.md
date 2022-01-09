@@ -133,6 +133,7 @@ Note `availabilityDomain` for yourself, then read the corresponding comment in `
 In order to have secure shell (SSH) access to the instance you need to have a keypair, besically 2 files:
 - ~/.ssh/id_rsa 
 - ~/.ssh/id_rsa.pub
+
 Second one (public key) contents (string) should be provided to a command below. 
 The are plenty of tutorials on how to generate them (if you don't have them yet), we won't cover this part here.
 
@@ -244,6 +245,8 @@ In order to test the script using GitHub runners (their virtual machines) please
 4. Click `New repository secret` and set all the values (**one by one**) that you'd set in `.env` file e.g.
 
 ![New Repository Secret](images/new-repository-secret.png)
+
+*NB!* No need to double quote any value here!
 
 5. As for the private key, you have 2 options. Either:
 - upload to any web server accessible from the Internet by using just URL or...
