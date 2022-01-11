@@ -164,8 +164,8 @@ OCI_MEMORY_IN_GBS=1
 OCI_AVAILABILITY_DOMAIN=FeVO:EU-FRANKFURT-1-AD-2
 ```
 
-If you don't have instances of selected shape at all, leave the value of `OCI_MAX_INSTANCES=1`. 
-When you managed to launch one and need more, set to `OCI_MAX_INSTANCES=2`. 
+If you don't have instances of selected shape at all, and need only one, leave the value of `OCI_MAX_INSTANCES=1`. 
+When you managed to launch one and need more (or 2 from scratch), set to `OCI_MAX_INSTANCES=2`. 
 
 ## Running the script
 
