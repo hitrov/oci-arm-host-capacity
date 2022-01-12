@@ -49,7 +49,8 @@ class OciApi
     "availabilityDomain": "$availabilityDomain",
     "sourceDetails": {
         "sourceType": "image",
-        "imageId": "{$config->imageId}"
+        "imageId": "{$config->imageId}",
+        "bootVolumeSizeInGBs": {$config->bootVolumeSizeInGBs},
     },
     "createVnicDetails": {
         "assignPublicIp": false,
