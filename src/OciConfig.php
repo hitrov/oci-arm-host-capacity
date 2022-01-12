@@ -30,7 +30,7 @@ class OciConfig
      * @param string|array|null $availabilityDomains
      * @param string $subnetId
      * @param string $imageId
-     * @param int $ocups
+     * @param int $ocpus
      * @param int $memoryInGBs
      */
     public function __construct(
@@ -42,7 +42,7 @@ class OciConfig
         $availabilityDomains,
         string $subnetId,
         string $imageId,
-        int $ocups = 4,
+        int $ocpus = 4,
         int $memoryInGBs = 24
     )
     {
@@ -54,7 +54,7 @@ class OciConfig
         $this->availabilityDomains = $availabilityDomains;
         $this->subnetId = $subnetId;
         $this->imageId = $imageId;
-        $this->ocpus = $ocups;
+        $this->ocpus = $ocpus;
         $this->memoryInGBs = $memoryInGBs;
         $this->imageId = $imageId;
     }
