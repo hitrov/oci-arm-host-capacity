@@ -280,7 +280,7 @@ Specific GitHub Workflows [commit](https://github.com/hitrov/oci-arm-host-capaci
 used in the [Setup](#setup) take an advantage of [Scheduled events](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#scheduled-events)  
 and **will endlessly run the script every 5-20 minutes** (how exactly often - depends on runners' availability). 
 
-**NB!** After you're done with testing, **immediately revert .github/workflows/tests.yml** to its previous content and push to the `main` branch 
+**NB!** After you're done with testing, **immediately delete .github/workflows/tests.yml** (because you don't need integration tests - they're written taking into account instances that I have) and push to the `main` branch 
 because infinite run actually violates the [Terms of Use](https://docs.github.com/en/github/site-policy/github-terms-for-additional-products-and-features#actions):
 ```
 Actions should not be used for:
@@ -295,8 +295,8 @@ or the disabling of repositories created to run Actions in a way that violates t
 
 This is how you do:
 ```bash
-git checkout HEAD~1 -- .github/workflows/tests.yml
-git commit -m "Revert workflow with periodic job tests" .github/workflows/tests.yml
+git rm .github/workflows/tests.yml
+git commit -m "Delete workflow file" .github/workflows/tests.yml
 git push origin main
 ```
 
