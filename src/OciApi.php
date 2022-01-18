@@ -48,7 +48,7 @@ class OciApi
     "compartmentId": "{$config->tenancyId}",
     "displayName": "$displayName",
     "availabilityDomain": "$availabilityDomain",
-    "sourceDetails": {$config->sourceDetails},
+    "sourceDetails": {$config->getSourceDetails()},
     "createVnicDetails": {
         "assignPublicIp": false,
         "subnetId": "{$config->subnetId}",

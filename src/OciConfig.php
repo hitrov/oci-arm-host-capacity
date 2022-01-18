@@ -38,8 +38,6 @@ class OciConfig
      * @param string $imageId
      * @param int $ocups
      * @param int $memoryInGBs
-     * @throws AvailabilityDomainRequiredException
-     * @throws BootVolumeSizeException
      */
     public function __construct(
         string $region,
@@ -65,8 +63,6 @@ class OciConfig
         $this->ocpus = $ocups;
         $this->memoryInGBs = $memoryInGBs;
         $this->imageId = $imageId;
-
-        $this->sourceDetails = $this->getSourceDetails();
     }
 
     /**
@@ -83,6 +79,10 @@ class OciConfig
      */
     public function getSourceDetails(): string
     {
+        if (isset($this->sourceDetails)) {
+            return $this->sourceDetails;
+        }
+
         $sourceDetails = [
             'sourceType' => 'image',
             'imageId' => $this->imageId,

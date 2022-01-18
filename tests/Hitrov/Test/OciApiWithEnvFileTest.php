@@ -4,10 +4,19 @@ declare(strict_types=1);
 namespace Hitrov\Test;
 
 
-use Dotenv\Dotenv;
+use Hitrov\Test\Traits\LoadEnv;
 
 class OciApiWithEnvFileTest extends OciApiTest
 {
+    use LoadEnv;
+
+    const ENV_FILENAME = '.env.test';
+
+    public function testGetAvailabilityDomains(): void
+    {
+        $this->markTestSkipped('Not relevant.');
+    }
+
     protected function setEnv(): void
     {
         putenv('OCI_SHAPE');
@@ -17,8 +26,6 @@ class OciApiWithEnvFileTest extends OciApiTest
         putenv('OCI_IMAGE_ID');
         putenv('OCI_SUBNET_ID');
 
-        $envFileDir = getcwd() . '/tests/resources';
-        $dotenv = Dotenv::createUnsafeMutable($envFileDir, '.env.test');
-        $dotenv->safeLoad();
+        $this->loadEnv();
     }
 }
