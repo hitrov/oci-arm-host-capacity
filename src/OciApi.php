@@ -28,6 +28,7 @@ class OciApi
      * @throws OCI\Exception\PrivateKeyFileNotFoundException
      * @throws OCI\Exception\SignerValidateException
      * @throws OCI\Exception\SigningValidationFailedException
+     * @throws CurlException
      */
     public function createInstance(
         OciConfig $config,
@@ -47,10 +48,7 @@ class OciApi
     "compartmentId": "{$config->tenancyId}",
     "displayName": "$displayName",
     "availabilityDomain": "$availabilityDomain",
-    "sourceDetails": {
-        "sourceType": "image",
-        "imageId": "{$config->imageId}"
-    },
+    "sourceDetails": {$config->sourceDetails},
     "createVnicDetails": {
         "assignPublicIp": false,
         "subnetId": "{$config->subnetId}",

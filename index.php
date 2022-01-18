@@ -35,6 +35,14 @@ $config = new OciConfig(
     (int) getenv('OCI_MEMORY_IN_GBS')
 );
 
+$bootVolumeSizeInGBs = (string) getenv('OCI_BOOT_VOLUME_SIZE_IN_GBS');
+$bootVolumeId = (string) getenv('OCI_BOOT_VOLUME_ID');
+if ($bootVolumeSizeInGBs) {
+    $config->setBootVolumeSizeInGBs($bootVolumeSizeInGBs);
+} elseif ($bootVolumeId) {
+    $config->setBootVolumeId($bootVolumeId);
+}
+
 $api = new OciApi();
 $notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
     /*
