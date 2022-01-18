@@ -6,15 +6,15 @@ namespace Hitrov\Test;
 
 use Hitrov\Exception\ApiCallException;
 use Hitrov\OciApi;
-use Hitrov\OciConfig;
+use Hitrov\Test\Traits\DefaultConfig;
 use PHPUnit\Framework\TestCase;
 
 class OciApiTest extends TestCase
 {
+    use DefaultConfig;
+
     const HAVE_INSTANCE = 'Already have an instance';
 
-    private static OciApi $api;
-    private static OciConfig $config;
     private static array $instances;
 
     /**
@@ -24,19 +24,8 @@ class OciApiTest extends TestCase
     {
         $this->setEnv();
 
-        self::$config = new OciConfig(
-            getenv('OCI_REGION'),
-            getenv('OCI_USER_ID'),
-            getenv('OCI_TENANCY_ID'),
-            getenv('OCI_KEY_FINGERPRINT'),
-            getenv('OCI_PRIVATE_KEY_FILENAME'),
-            getenv('OCI_AVAILABILITY_DOMAIN'),
-            getenv('OCI_SUBNET_ID'),
-            getenv('OCI_IMAGE_ID'),
-            (int) getenv('OCI_OCPUS'),
-            (int) getenv('OCI_MEMORY_IN_GBS')
-        );
-        self::$api = new OciApi();
+        self::$config = $this->getDefaultConfig();
+        self::$api = $this->getDefaultApi();
     }
 
     /**
