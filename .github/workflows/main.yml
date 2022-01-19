@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         php-versions: ['7.4']
-    name: MainScript Integration (PHP ${{ matrix.php-versions }})
+    name: MainScript - (PHP ${{ matrix.php-versions }})
     steps:
       - uses: actions/checkout@v1
       - name: Install PHP
