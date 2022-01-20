@@ -18,14 +18,14 @@ class HttpClient
      */
     public static function getResponse(array $curlOptions): array
     {
-        $curl = curl_init();
-        curl_setopt_array($curl, $curlOptions);
+        $curl = \curl_init();
+        \curl_setopt_array($curl, $curlOptions);
 
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        $errNo = curl_errno($curl);
-        $info = curl_getinfo($curl);
-        curl_close($curl);
+        $response = \curl_exec($curl);
+        $error = \curl_error($curl);
+        $errNo = \curl_errno($curl);
+        $info = \curl_getinfo($curl);
+        \curl_close($curl);
 
         if ($response === false || ($error && $errNo)) {
             throw new CurlException("curl error occurred: $error, response: $response", $errNo);
