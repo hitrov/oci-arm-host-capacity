@@ -27,6 +27,7 @@ $config = new OciConfig(
     getenv('OCI_USER_ID'),
     getenv('OCI_TENANCY_ID'),
     getenv('OCI_KEY_FINGERPRINT'),
+    getenv('OCI_DISPLAY_NAME'),
     getenv('OCI_PRIVATE_KEY_FILENAME'),
     getenv('OCI_AVAILABILITY_DOMAIN') ?: null, // null or '' or 'jYtI:PHX-AD-1' or ['jYtI:PHX-AD-1','jYtI:PHX-AD-2']
     getenv('OCI_SUBNET_ID'),
