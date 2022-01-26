@@ -47,7 +47,7 @@ class OciConfig
         string $tenancyId,
         string $keyFingerPrint,
         string $privateKeyFilename,
-        string $displayName = 'instance-' . date('Ymd-Hi'),
+        string $displayName,
         $availabilityDomains,
         string $subnetId,
         string $imageId,
