@@ -21,7 +21,11 @@ RUN apt update && apt install -y git php-cli php-curl php-xml jq nano unzip curl
 
 WORKDIR /app/oci-arm-host-capacity   
 
-USER ubuntu    
 
 COPY run.sh run.sh
+RUN chmod +x run.sh
+RUN chown ubuntu:ubuntu run.sh
+
+USER ubuntu    
+
 CMD ./run.sh
