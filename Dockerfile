@@ -2,6 +2,8 @@ FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive 
 
+ENV RETRY_DELAY_TIME 10
+
 COPY . /app/oci-arm-host-capacity
 
 RUN apt update && apt install -y git php-cli php-curl php-xml jq nano unzip curl && \

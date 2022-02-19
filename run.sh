@@ -11,5 +11,5 @@ do
    MSG=$(echo "${REQ}"| jq -r '.message')
 
    echo $(date +%F_%H-%M-%S) - $CODE - $MSG;
-   sleep 10m;
+   sleep ${RETRY_DELAY_TIME}m;
 done
