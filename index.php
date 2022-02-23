@@ -32,7 +32,8 @@ $config = new OciConfig(
     getenv('OCI_SUBNET_ID'),
     getenv('OCI_IMAGE_ID'),
     (int) getenv('OCI_OCPUS'),
-    (int) getenv('OCI_MEMORY_IN_GBS')
+    (int) getenv('OCI_MEMORY_IN_GBS'),
+    filter_var(getenv('OCI_IN_TRANSIT_ENCRYPTION'), FILTER_VALIDATE_BOOLEAN)
 );
 
 $bootVolumeSizeInGBs = (string) getenv('OCI_BOOT_VOLUME_SIZE_IN_GBS');
