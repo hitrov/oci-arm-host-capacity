@@ -49,7 +49,8 @@ class OciConfig
         string $subnetId,
         string $imageId,
         int $ocups = 4,
-        int $memoryInGBs = 24
+        int $memoryInGBs = 24,
+        bool $use_in_transit_encryption = true
     )
     {
         $this->region = $region;
@@ -63,6 +64,7 @@ class OciConfig
         $this->ocpus = $ocups;
         $this->memoryInGBs = $memoryInGBs;
         $this->imageId = $imageId;
+        $this->use_in_transit_encryption = $use_in_transit_encryption;
     }
 
     /**
