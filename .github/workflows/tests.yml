@@ -1,15 +1,14 @@
 name: Tests
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
+  push
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['7.4', '8.0']
+        php-versions: ['8.0']
     name: integration-tests (PHP ${{ matrix.php-versions }})
     steps:
       - uses: actions/checkout@v1
