@@ -8,8 +8,10 @@ on:
     branches:
       - main
 
-  schedule:
+  /*
+schedule:
     - cron: '*/20 * * * *'
+*/
 
 jobs:
   tests:
