@@ -33,17 +33,10 @@ class BootVolumeIdTest extends TestCase
      */
     public function testCreateInstance(): void
     {
-        $exceptionThrown = false;
-        try {
-            self::$config->setBootVolumeId(getenv('OCI_BOOT_VOLUME_ID'));
-            $instance = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
-        } catch(ApiCallException $e) {
-            $response = $e->getMessage();
-            $this->assertEquals(404, $e->getCode());
-            $this->assertTrue(strpos($response, 'NotAuthorizedOrNotFound') !== false);
-            $this->assertTrue(strpos($response, 'Available volume matching id') !== false);
-            $exceptionThrown = true;
-        }
-        $this->assertTrue($exceptionThrown);
+        $this->expectException(ApiCallException::class);
+        $this->expectExceptionCode(409);
+        $this->expectExceptionMessageMatches('/"code": "Conflict",\n\s+"message": "Volume ocid1\.bootvolume\.oc1\.eu-frankfurt-1\..*\scurrently attached/');
+        self::$config->setBootVolumeId(getenv('OCI_BOOT_VOLUME_ID'));
+        self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
     }
 }

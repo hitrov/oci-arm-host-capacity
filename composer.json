@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^7.4 || ^8.0 || ^8.1",
         "hitrov/oci-api-php-request-sign": "^1.0",
         "ext-curl": "*",
         "ext-json": "*",
