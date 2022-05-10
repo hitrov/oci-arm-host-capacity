@@ -74,17 +74,11 @@ class OciApiTest extends TestCase
      */
     public function testCreateInstance(): void
     {
-        $exceptionThrown = false;
-        try {
-            $instance = self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
-        } catch(ApiCallException $e) {
-            $response = $e->getMessage();
-            $this->assertEquals(400, $e->getCode());
-            $this->assertTrue(strpos($response, 'LimitExceeded') !== false);
-            $this->assertTrue(strpos($response, 'The following service limits were exceeded') !== false);
-            $exceptionThrown = true;
-        }
-        $this->assertTrue($exceptionThrown);
+        $this->expectException(ApiCallException::class);
+        $this->expectExceptionCode(400);
+        $this->expectExceptionMessageMatches('/"code": "LimitExceeded",\n\s+"message": "The following service limits were exceeded:.*Request a service limit increase from the service limits page in the console/');
+
+        self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
     }
 
     protected function setEnv(): void
