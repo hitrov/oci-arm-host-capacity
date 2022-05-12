@@ -188,6 +188,8 @@ or if you already have instances:
 }
 ```
 
+If you don't have PHP and composer installed locally and don't want to install them, consider building a Docker image (`docker build .`).
+
 ## Periodic job setup (cron)
 
 ### Linux / WSL
