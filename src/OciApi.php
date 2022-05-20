@@ -37,7 +37,7 @@ class OciApi
         string $availabilityDomain
     ): array
     {
-        $displayName = 'instance-' . date('Ymd-Hi');
+        $displayName = "{$config->displayName}";
 
         $body = <<<EOD
 {
