@@ -16,6 +16,8 @@ If you prefer article style, here's a link to [Medium](https://hitrov.medium.com
 YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgjElc64) 
 is a bit outdated regarding [Configuration](#configuration) but still can be useful for the rest.
 
+If you appreciate what I did please consider supporting me on [Patreon](https://www.patreon.com/hitrov)
+
 - [Generating API key](#generating-api-key)
 - [Installation](#installation)
 - [Configuration](#configuration)
