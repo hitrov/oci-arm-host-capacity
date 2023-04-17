@@ -6,6 +6,7 @@ namespace Hitrov;
 
 use Hitrov\Exception\ApiCallException;
 use Hitrov\Exception\CurlException;
+use Hitrov\Interfaces\CacheInterface;
 use Hitrov\OCI\Signer;
 use JsonException;
 
@@ -15,6 +16,8 @@ class OciApi
      * @var array
      */
     private $existingInstances;
+
+    private CacheInterface $cache;
 
     /**
      * @param OciConfig $config
@@ -139,10 +142,22 @@ EOD;
      */
     public function getAvailabilityDomains(OciConfig $config): array
     {
-        $baseUrl = "{$this->getBaseApiUrl($config, 'identity')}/availabilityDomains/";
-        $params = ['compartmentId' => $config->tenancyId];
+        $data = null;
+        if (getenv('CACHE_AVAILABILITY_DOMAINS') && isset($this->cache)) {
+            $data = $this->cache->get('getAvailabilityDomains');
+        }
 
-        return $this->call($config, $baseUrl, 'GET', null, $params);
+        if (!$data) {
+            $baseUrl = "{$this->getBaseApiUrl($config, 'identity')}/availabilityDomains/";
+            $params = ['compartmentId' => $config->tenancyId];
+
+            $data = $this->call($config, $baseUrl, 'GET', null, $params);
+            if (getenv('CACHE_AVAILABILITY_DOMAINS') && isset($this->cache)) {
+                $this->cache->add($data, 'getAvailabilityDomains');
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -151,6 +166,11 @@ EOD;
     public function getExistingInstances(): array
     {
         return $this->existingInstances;
+    }
+
+    public function setCache(CacheInterface $cache): void
+    {
+        $this->cache = $cache;
     }
 
     /**
@@ -168,7 +188,7 @@ EOD;
      * @throws OCI\Exception\SigningValidationFailedException
      * @throws CurlException
      */
-    private function call(
+    public function call(
         OciConfig $config,
         string $baseUrl = '',
         string $method = 'GET',
