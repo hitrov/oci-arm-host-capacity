@@ -9,6 +9,7 @@ require "{$pathPrefix}vendor/autoload.php";
 
 use Dotenv\Dotenv;
 use Hitrov\Exception\ApiCallException;
+use Hitrov\FileCache;
 use Hitrov\OciApi;
 use Hitrov\OciConfig;
 
@@ -44,6 +45,9 @@ if ($bootVolumeSizeInGBs) {
 }
 
 $api = new OciApi();
+if (getenv('CACHE_AVAILABILITY_DOMAINS')) {
+    $api->setCache(new FileCache($config));
+}
 $notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
     /*
      * if you have own https://core.telegram.org/bots

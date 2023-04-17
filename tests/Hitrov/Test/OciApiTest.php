@@ -5,6 +5,7 @@ namespace Hitrov\Test;
 
 
 use Hitrov\Exception\ApiCallException;
+use Hitrov\FileCache;
 use Hitrov\OciApi;
 use Hitrov\Test\Traits\DefaultConfig;
 use PHPUnit\Framework\TestCase;
@@ -79,6 +80,60 @@ class OciApiTest extends TestCase
         $this->expectExceptionMessageMatches('/"code": "LimitExceeded",\n\s+"message": "The following service limits were exceeded:.*Request a service limit increase from the service limits page in the console/');
 
         self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
+    }
+
+    public function testWithCache(): void
+    {
+        $cache = new FileCache(self::$config);
+        $cache->add([1, 'one'], 'getAvailabilityDomains');
+
+        self::$api->setCache($cache);
+
+        putenv('CACHE_AVAILABILITY_DOMAINS=1');
+
+        $this->assertEquals(
+            [1, 'one'],
+            self::$api->getAvailabilityDomains(self::$config),
+        );
+
+        putenv('CACHE_AVAILABILITY_DOMAINS=');
+        unlink(sprintf('%s/%s', getcwd(), 'oci_cache.json'));
+    }
+
+    public function testWithoutCache(): void
+    {
+        $mock = $this->getMockBuilder(OciApi::class)
+            ->onlyMethods(['call'])
+            ->getMock();
+
+        $mock->expects($this->once())
+            ->method('call')
+            ->willReturn(['foo']);
+
+        $this->assertEquals(
+            ['foo'],
+            $mock->getAvailabilityDomains(self::$config),
+        );
+    }
+
+    public function testWhenCacheObjectNotSet(): void
+    {
+        putenv('CACHE_AVAILABILITY_DOMAINS=1');
+
+        $mock = $this->getMockBuilder(OciApi::class)
+            ->onlyMethods(['call'])
+            ->getMock();
+
+        $mock->expects($this->once())
+            ->method('call')
+            ->willReturn(['foo']);
+
+        $this->assertEquals(
+            ['foo'],
+            $mock->getAvailabilityDomains(self::$config),
+        );
+
+        putenv('CACHE_AVAILABILITY_DOMAINS=');
     }
 
     protected function setEnv(): void
