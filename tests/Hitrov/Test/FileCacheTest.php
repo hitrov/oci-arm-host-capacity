@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class FileCacheTest extends TestCase
 {
-    const CONFIG_MD5 = '022f4537505321f3efefe7016082508f';
+    const CONFIG_MD5 = '0c4b5682ece1704df5bf11d71fa55177';
 
     use DefaultConfig;
 
@@ -54,7 +54,7 @@ class FileCacheTest extends TestCase
         $expected = <<<EOD
 {
     "foo": {
-        "022f4537505321f3efefe7016082508f": [
+        "0c4b5682ece1704df5bf11d71fa55177": [
             1,
             "one"
         ]
@@ -97,7 +97,7 @@ EOD;
         ]
     },
     "bar": {
-        "022f4537505321f3efefe7016082508f": [
+        "0c4b5682ece1704df5bf11d71fa55177": [
             2,
             "two"
         ]
@@ -139,7 +139,7 @@ EOD;
             1,
             "one"
         ],
-        "c9788a1da7c524be16aafc4042e2d9e4": [
+        "b11f9e5fbe425f149a45af5a9fb40d66": [
             11,
             "eleven"
         ]
