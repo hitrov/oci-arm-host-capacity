@@ -76,7 +76,7 @@ EOD;
         $existingCache = <<<EOD
 {
     "foo": {
-        "022f4537505321f3efefe7016082508f": [
+        "0c4b5682ece1704df5bf11d71fa55177": [
             1,
             "one"
         ]
@@ -91,7 +91,7 @@ EOD;
         $expected = <<<EOD
 {
     "foo": {
-        "022f4537505321f3efefe7016082508f": [
+        "0c4b5682ece1704df5bf11d71fa55177": [
             1,
             "one"
         ]
@@ -120,7 +120,7 @@ EOD;
         $existingCache = <<<EOD
 {
     "foo": {
-        "022f4537505321f3efefe7016082508f": [
+        "0c4b5682ece1704df5bf11d71fa55177": [
             1,
             "one"
         ]
@@ -135,7 +135,7 @@ EOD;
         $expected = <<<EOD
 {
     "foo": {
-        "022f4537505321f3efefe7016082508f": [
+        "0c4b5682ece1704df5bf11d71fa55177": [
             1,
             "one"
         ],
