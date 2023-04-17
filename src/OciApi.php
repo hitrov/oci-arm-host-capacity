@@ -7,6 +7,8 @@ namespace Hitrov;
 use Hitrov\Exception\ApiCallException;
 use Hitrov\Exception\CurlException;
 use Hitrov\Interfaces\CacheInterface;
+use Hitrov\Exception\TooManyRequestsWaiterException;
+use Hitrov\Interfaces\TooManyRequestsWaiterInterface;
 use Hitrov\OCI\Signer;
 use JsonException;
 
@@ -18,6 +20,7 @@ class OciApi
     private $existingInstances;
 
     private CacheInterface $cache;
+    private TooManyRequestsWaiterInterface $waiter;
 
     /**
      * @param OciConfig $config
@@ -40,6 +43,16 @@ class OciApi
         string $availabilityDomain
     ): array
     {
+        if (isset($this->waiter) && $this->waiter->isConfigured()) {
+            if ($this->waiter->isTooEarly()) {
+                throw new TooManyRequestsWaiterException(
+                    "Will retry after {$this->waiter->secondsRemaining()} seconds",
+                );
+            }
+
+            $this->waiter->remove();
+        }
+
         $displayName = 'instance-' . date('Ymd-Hi');
 
         $body = <<<EOD
@@ -84,7 +97,19 @@ EOD;
 
         $baseUrl = "{$this->getBaseApiUrl($config)}/instances/";
 
-        return $this->call($config, $baseUrl, 'POST', $body);
+        try {
+            return $this->call($config, $baseUrl, 'POST', $body);
+        } catch(ApiCallException $e) {
+            $message = $e->getMessage();
+            if ($e->getCode() != 429 && strpos($message, 'TooManyRequests') === false) {
+                throw $e;
+            }
+
+            if (isset($this->waiter) && $this->waiter->isConfigured()) {
+                $this->waiter->enable();
+                throw new TooManyRequestsWaiterException($message);
+            }
+        }
     }
 
     /**
@@ -228,6 +253,11 @@ EOD;
         }
 
         return HttpClient::getResponse($curlOptions);
+    }
+
+    public function setWaiter(TooManyRequestsWaiterInterface $waiter): void
+    {
+        $this->waiter = $waiter;
     }
 
     private function getBaseApiUrl(OciConfig $config, string $api = 'iaas'): string

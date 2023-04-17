@@ -12,6 +12,7 @@ use Hitrov\Exception\ApiCallException;
 use Hitrov\FileCache;
 use Hitrov\OciApi;
 use Hitrov\OciConfig;
+use Hitrov\TooManyRequestsWaiter;
 
 $envFilename = empty($argv[1]) ? '.env' : $argv[1];
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__, $envFilename);
@@ -47,6 +48,9 @@ if ($bootVolumeSizeInGBs) {
 $api = new OciApi();
 if (getenv('CACHE_AVAILABILITY_DOMAINS')) {
     $api->setCache(new FileCache($config));
+}
+if (getenv('TOO_MANY_REQUESTS_TIME_WAIT')) {
+    $api->setWaiter(new TooManyRequestsWaiter((int) getenv('TOO_MANY_REQUESTS_TIME_WAIT')));
 }
 $notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
     /*

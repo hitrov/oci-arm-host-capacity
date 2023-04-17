@@ -5,9 +5,11 @@ namespace Hitrov\Test;
 
 
 use Hitrov\Exception\ApiCallException;
+use Hitrov\Exception\TooManyRequestsWaiterException;
 use Hitrov\FileCache;
 use Hitrov\OciApi;
 use Hitrov\Test\Traits\DefaultConfig;
+use Hitrov\TooManyRequestsWaiter;
 use PHPUnit\Framework\TestCase;
 
 class OciApiTest extends TestCase
