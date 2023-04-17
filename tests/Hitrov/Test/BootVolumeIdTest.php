@@ -35,7 +35,10 @@ class BootVolumeIdTest extends TestCase
     {
         $this->expectException(ApiCallException::class);
         $this->expectExceptionCode(409);
-        $this->expectExceptionMessageMatches('/"code": "Conflict",\n\s+"message": "Volume ocid1\.bootvolume\.oc1\.eu-frankfurt-1\..*\scurrently attached/');
+        $this->expectExceptionMessageMatches('/"code": "Conflict",\n\s+"message": "Volume ocid1\.bootvolume\.oc1\.phx\..*\scurrently attached/');
+
+        putenv('OCI_BOOT_VOLUME_ID=ocid1.bootvolume.oc1.phx.abyhqljti2tk77lrczr3eoyh6pijlrsb7bgmjp3c52if52oezi7rj574rifa');
+
         self::$config->setBootVolumeId(getenv('OCI_BOOT_VOLUME_ID'));
         self::$api->createInstance(self::$config, getenv('OCI_SHAPE'), getenv('OCI_SSH_PUBLIC_KEY'), getenv('OCI_AVAILABILITY_DOMAIN'));
     }

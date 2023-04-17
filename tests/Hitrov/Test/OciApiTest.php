@@ -86,8 +86,8 @@ class OciApiTest extends TestCase
         putenv('OCI_SHAPE=VM.Standard.E2.1.Micro');
         putenv('OCI_OCPUS=1');
         putenv('OCI_MEMORY_IN_GBS=1');
-        putenv('OCI_AVAILABILITY_DOMAIN=FeVO:EU-FRANKFURT-1-AD-2');
-        putenv('OCI_IMAGE_ID=ocid1.image.oc1.eu-frankfurt-1.aaaaaaaado5423wtoss2ogoj2xpr4wssqsfy7yeafyekiywhuep7wnvwpvuq');
-        putenv('OCI_SUBNET_ID=ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaahbb6t2jetpfmfi5kn7ypi4w6pn3qt6s3k4xzvwxmjt3tjmv3faq');
+        putenv('OCI_AVAILABILITY_DOMAIN=jYtI:PHX-AD-1');
+        putenv('OCI_IMAGE_ID=ocid1.image.oc1.phx.aaaaaaaaasn6ek63v5gdpifr5emn6mtojzebcpewo4mvionam2btsoasy6sq');
+        putenv('OCI_SUBNET_ID=ocid1.subnet.oc1.phx.aaaaaaaaidceersp3gaeew4u5xkogozc6pufcuanqg3age4putpwsiqj77kq');
     }
 }
