@@ -105,10 +105,12 @@ EOD;
                 throw $e;
             }
 
-            if (isset($this->waiter) && $this->waiter->isConfigured()) {
-                $this->waiter->enable();
-                throw new TooManyRequestsWaiterException($message);
+            if (!isset($this->waiter) || !$this->waiter->isConfigured()) {
+                throw $e;
             }
+
+            $this->waiter->enable();
+            throw new TooManyRequestsWaiterException($message);
         }
     }
 
