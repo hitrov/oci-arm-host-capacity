@@ -11,11 +11,11 @@ class TooManyRequestsWaiter implements TooManyRequestsWaiterInterface
 
     public function __construct(int $waitTime)
     {
+        $this->waitSeconds = $waitTime;
         if ($this->fileExists()) {
             return;
         }
 
-        $this->waitSeconds = $waitTime;
         file_put_contents($this->getFilename(), '');
     }
 
