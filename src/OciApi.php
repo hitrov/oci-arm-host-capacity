@@ -132,6 +132,14 @@ EOD;
         return $this->call($config, $baseUrl, 'GET', null, $params);
     }
 
+    public function getShapes(OciConfig $config): array
+    {
+        $baseUrl = "{$this->getBaseApiUrl($config)}/shapes/";
+        $params = ['compartmentId' => $config->tenancyId];
+
+        return $this->call($config, $baseUrl, 'GET', null, $params);
+    }
+
     public function checkExistingInstances(OciConfig $config, array $listResponse, string $shape, int $maxRunningInstancesOfThatShape): string
     {
         $this->existingInstances = array_filter($listResponse, function ($instance) use ($shape) {
