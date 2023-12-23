@@ -16,7 +16,8 @@ If you prefer article style, here's a link to [Medium](https://hitrov.medium.com
 YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgjElc64) 
 is a bit outdated regarding [Configuration](#configuration) but still can be useful for the rest.
 
-If you appreciate what I did please consider supporting me on [Patreon](https://www.patreon.com/hitrov)
+If you appreciate what I did please consider
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/hitrov)
 
 - [Generating API key](#generating-api-key)
 - [Installation](#installation)
