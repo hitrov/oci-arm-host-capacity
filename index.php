@@ -9,6 +9,7 @@ require "{$pathPrefix}vendor/autoload.php";
 
 use Dotenv\Dotenv;
 use Hitrov\Exception\ApiCallException;
+use Hitrov\Exception\TooManyRequestsWaiterException;
 use Hitrov\FileCache;
 use Hitrov\OciApi;
 use Hitrov\OciConfig;
@@ -111,6 +112,9 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
         }
 
         // current config is broken
+        return;
+    } catch(TooManyRequestsWaiterException $e) {
+        echo $e->getMessage();
         return;
     }
 
