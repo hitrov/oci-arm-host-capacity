@@ -55,45 +55,54 @@ class OciApi
 
         $displayName = 'instance-' . date('Ymd-Hi');
 
-        $body = <<<EOD
-{
-    "metadata": {
-        "ssh_authorized_keys": "$sshKey"
-    },
-    "shape": "$shape",
-    "compartmentId": "{$config->tenancyId}",
-    "displayName": "$displayName",
-    "availabilityDomain": "$availabilityDomain",
-    "sourceDetails": {$config->getSourceDetails()},
-    "createVnicDetails": {
-        "assignPublicIp": false,
-        "subnetId": "{$config->subnetId}",
-        "assignPrivateDnsRecord": true
-    },
-    "agentConfig": {
-        "pluginsConfig": [
-            {
-                "name": "Compute Instance Monitoring",
-                "desiredState": "ENABLED"
-            }
-        ],
-        "isMonitoringDisabled": false,
-        "isManagementDisabled": false
-    },
-    "definedTags": {},
-    "freeformTags": {},
-    "instanceOptions": {
-        "areLegacyImdsEndpointsDisabled": false
-    },
-    "availabilityConfig": {
-        "recoveryAction": "RESTORE_INSTANCE"
-    },
-    "shapeConfig": {
-        "ocpus": {$config->ocpus},
-        "memoryInGBs": {$config->memoryInGBs}
-    }
-}
-EOD;
+        $body = array(
+            'metadata' =>
+            array(
+                'ssh_authorized_keys' => $sshKey,
+            ),
+            'shape' => $shape,
+            'compartmentId' => $config->tenancyId,
+            'displayName' => $displayName,
+            'availabilityDomain' => $availabilityDomain,
+            'sourceDetails' => json_decode($config->getSourceDetails(), true, 512, JSON_THROW_ON_ERROR), // todo: $config->getSourceDetails() should just return array
+            'createVnicDetails' =>
+            array(
+                'assignPublicIp' => false,
+                'subnetId' => $config->subnetId,
+                'assignPrivateDnsRecord' => true,
+            ),
+            'agentConfig' =>
+            array(
+                'pluginsConfig' =>
+                array(
+                    0 =>
+                    array(
+                        'name' => 'Compute Instance Monitoring',
+                        'desiredState' => 'ENABLED',
+                    ),
+                ),
+                'isMonitoringDisabled' => false,
+                'isManagementDisabled' => false,
+            ),
+            'definedTags' =>
+            (object)array(), // must be object or oci will reject it as malformed
+            'freeformTags' =>
+            (object)array(), // must be object or oci will reject it as malformed
+            'instanceOptions' =>
+            array(
+                'areLegacyImdsEndpointsDisabled' => false,
+            ),
+            'availabilityConfig' =>
+            array(
+                'recoveryAction' => 'RESTORE_INSTANCE',
+            ),
+            'shapeConfig' =>
+            array(
+                'ocpus' => $config->ocpus,
+                'memoryInGBs' => $config->memoryInGBs,
+            ),
+        );
+        $body = json_encode($body, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         $baseUrl = "{$this->getBaseApiUrl($config)}/instances/";
 
