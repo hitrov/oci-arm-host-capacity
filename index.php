@@ -111,7 +111,7 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
         }
 
         // current config is broken
-        return;
+        exit(1);
     }
 
     // success
@@ -121,5 +121,7 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
         $notifier->notify($message);
     }
 
-    return;
+    exit(0);
 }
+
+exit(1);
