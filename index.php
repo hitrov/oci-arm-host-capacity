@@ -106,12 +106,12 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
             strpos($message, 'Out of host capacity') !== false
         ) {
             // trying next availability domain
-            sleep(16);
+            sleep(30);
             continue;
         }
 
         // current config is broken
-        return;
+        exit(1);
     }
 
     // success
@@ -121,5 +121,7 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
         $notifier->notify($message);
     }
 
-    return;
+    exit(0);
 }
+
+exit(1);
