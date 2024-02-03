@@ -46,9 +46,9 @@ If you appreciate what I did please consider
 
 ## Generating API key
 
-After logging in to [OCI Console](http://cloud.oracle.com/), click profile icon and then "User Settings"
+After logging in to [OCI Console](http://cloud.oracle.com/), click profile icon and then "My Profile"
 
-![User Settings](images/user-settings.png)
+![image](https://github.com/RaistlinTAO/oci-arm-host-capacity/assets/8352780/22837a10-47ef-4eb1-9fe9-d0cfe3054875)
 
 Go to Resources -> API keys, click "Add API Key" button
 
@@ -58,7 +58,16 @@ Make sure "Generate API Key Pair" radio button is selected, click "Download Priv
 
 ![Download Private Key](images/download-private-key.png)
 
-Copy the contents from textarea and save it to file with a name "config". I put it together with *.pem file in newly created directory /home/ubuntu/.oci
+Copy the contents from textarea and save the detail provided.
+```
+[DEFAULT]
+user=ocid1.user.oc1..aaaafq
+fingerprint=e6:33:4c:e7:80:db
+tenancy=ocid1.tenancy.oc1..7rb6a
+region=ap-singapore-1
+```
+
+Please pay attention to this section: the value of 'user' needs to be filled in the .env file as OCI_USER_ID, the value of 'region' needs to be filled in the .env file as OCI_REGION, the value of 'fingerprint' needs to be filled in the .env file as OCI_KEY_FINGERPRINT, and the value of 'tenancy' needs to be filled in the .env file as OCI_TENANCY_ID.
 
 ![Configuration File Preview](images/config-file-preview.png)
 
