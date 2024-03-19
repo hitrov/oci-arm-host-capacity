@@ -116,7 +116,8 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
 
     // success
     $message = json_encode($instanceDetails, JSON_PRETTY_PRINT);
-    echo "$message\n";
+    $date = date("Y-m-d H:i:s");
+    echo "$date\n$message\n";
     if ($notifier->isSupported()) {
         $notifier->notify($message);
     }
