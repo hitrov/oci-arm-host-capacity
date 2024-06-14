@@ -1,0 +1,13 @@
+services:
+  oci-arm-vm:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      OCI_PRIVATE_KEY_FILENAME: "/oci/api_key.pem"
+    env_file:
+      - path: .env
+        required: true
+    volumes:
+      - ${OCI_PRIVATE_KEY_FILENAME_HOST:?}:/oci/api_key.pem
