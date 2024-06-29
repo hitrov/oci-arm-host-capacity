@@ -19,30 +19,35 @@ is a bit outdated regarding [Configuration](#configuration) but still can be use
 If you appreciate what I did please consider 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/hitrov)
 
-- [Generating API key](#generating-api-key)
-- [Installation](#installation)
-- [Configuration](#configuration)
-  - [Create/copy .env file](#createcopy-env-file)
-  - [General](#general)
-  - [Private key](#private-key)
-  - [Instance parameters](#instance-parameters)
-    - [Mandatory](#mandatory)
-      - [OCI_SUBNET_ID and OCI_IMAGE_ID](#oci_subnet_id-and-oci_image_id)
-      - [OCI_SSH_PUBLIC_KEY (SSH access)](#oci_ssh_public_key-ssh-access)
-    - [Optional](#optional)
-- [Running the script](#running-the-script)
-- [Periodic job setup (cron)](#periodic-job-setup-cron)
-  - [Linux / WSL](#linux--wsl)
-  - [GitHub actions (workflows)](#github-actions-workflows)
-    - [Setup](#setup)
-    - [Read This Carefully](#read-this-carefully)
-- [How it works](#how-it-works)
-- [Assigning public IP address](#assigning-public-ip-address)
-- [Troubleshooting](#troubleshooting)
-  - [Private key issues](#private-key-issues)
-  - [SSH key issues](#ssh-key-issues)
-- [Multiple configuration support](#multiple-configuration-support)
-- [Conclusion](#conclusion)
+- [Resolving Oracle Cloud "Out of Capacity" issue and getting free VPS with 4 ARM cores / 24GB of memory](#resolving-oracle-cloud-out-of-capacity-issue-and-getting-free-vps-with-4-arm-cores--24gb-of-memory)
+  - [Generating API key](#generating-api-key)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [Create/copy .env file](#createcopy-env-file)
+    - [General](#general)
+    - [Private key](#private-key)
+    - [Instance parameters](#instance-parameters)
+      - [Mandatory](#mandatory)
+        - [OCI\_SUBNET\_ID and OCI\_IMAGE\_ID](#oci_subnet_id-and-oci_image_id)
+        - [OCI\_SSH\_PUBLIC\_KEY (SSH access)](#oci_ssh_public_key-ssh-access)
+      - [Optional](#optional)
+  - [Running the script](#running-the-script)
+  - [Periodic job setup (cron)](#periodic-job-setup-cron)
+    - [Docker](#docker)
+      - [Mounting the Certificate](#mounting-the-certificate)
+      - [Umgebungsvariablen](#umgebungsvariablen)
+      - [example `docker-compose.yml`](#example-docker-composeyml)
+    - [Linux / WSL](#linux--wsl)
+    - [GitHub actions (workflows)](#github-actions-workflows)
+      - [Setup](#setup)
+      - [Read This Carefully](#read-this-carefully)
+  - [How it works](#how-it-works)
+  - [Assigning public IP address](#assigning-public-ip-address)
+  - [Troubleshooting](#troubleshooting)
+    - [Private key issues](#private-key-issues)
+    - [SSH key issues](#ssh-key-issues)
+  - [Multiple configuration support](#multiple-configuration-support)
+  - [Conclusion](#conclusion)
 
 ## Generating API key
 
@@ -192,6 +197,60 @@ or if you already have instances:
 ```
 
 ## Periodic job setup (cron)
+
+### Docker
+
+To pull the Docker image from GitHub Container Registry, use the following command:
+
+```bash
+docker pull ghcr.io/dasultras/oci-arm-host-capacity:main
+```
+
+#### Mounting the Certificate
+
+The account certificate for the API should be mounted to the path specified by the `OCI_PRIVATE_KEY_FILENAME` variable: `/oci_acc-private_key.pem`.
+
+#### Umgebungsvariablen
+
+| Variable                      | Default / _Example_                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OCI_REGION`                  | eu-frankfurt-1                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *`OCI_USER_ID`                | _ocid1.user.oc1..aaaaaaaax72***kd3q_                 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *`OCI_TENANCY_ID`             | _ocid1.tenancy.oc1..aaaaaaaakpx***qmpa_              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *`OCI_KEY_FINGERPRINT`        | _b3:a5:90:***:b0:8d:1c_                              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `OCI_PRIVATE_KEY_FILENAME`    | /private_key.pem                                     | absolute path (including directories) or direct public accessible URL                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| *`OCI_SUBNET_ID`              | _ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaahbb***faq_ |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *`OCI_IMAGE_ID`               | _ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa23z***v6wa_  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `OCI_OCPUS`                   | 4                                                    | Always free ARM: 1,2,3,4. Always free AMD x64: 1                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `OCI_MEMORY_IN_GBS`           | 24                                                   | Always free ARM: 6,12,18,24. NB! Oracle Linux Cloud Developer Image requires minimum 8. Always free AMD x64: 1                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `OCI_SHAPE`                   | VM.Standard.A1.Flex                                  | Or `VM.Standard.E2.1.Micro` for Always free AMD x64                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `OCI_MAX_INSTANCES`           | 1                                                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *`OCI_SSH_PUBLIC_KEY`         | ssh-ed25519 AAAAC3N***o2U user@example.com           | Your public key ~/.ssh/id_rsa.pub contents <br> NB! No new lines / line endings allowed! Put inside double quotes(")                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `CACHE_AVAILABILITY_DOMAINS`  | 1                                                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `OCI_AVAILABILITY_DOMAIN`     |                                                      | Is now optional for ARM since Always Free ARMs can be created in any AD. <br> ListAvailabilityDomains API call will be used for retrieval https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/AvailabilityDomain/ListAvailabilityDomains<br><br> NB! Always free AMD x64 instances should be created only in "main" (Always Free Eligible) AD,<br> you must set it manually in this case!<br> <br> If you wanna specify more than one, set as a PHP array in OciConfig constructor (inside index.php file) |  |
+| `TOO_MANY_REQUESTS_TIME_WAIT` | 600                                                  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `OCI_BOOT_VOLUME_SIZE_IN_GBS` |                                                      | Optional. If not set, default value depends on OCI_IMAGE_ID will be used. <br> Minimum is 47 for AMD x64 or 50 for ARM, maximum is 200 for Always Free accounts                                                                                                                                                                                                                                                                                                                                                      |
+| `OCI_BOOT_VOLUME_ID`          |                                                      | Optional. If set, will be used instead OCI_IMAGE_ID. Cannot be used together with OCI_BOOT_VOLUME_SIZE_IN_GBS. <br> Open https://cloud.oracle.com/block-storage/boot-volumes, click non-used and copy it's OCID <br> NB! You must specify OCI_AVAILABILITY_DOMAIN also as they should be located in the same one                                                                                                                                                                                                     |
+
+***Pflichtangaben**
+
+#### example `docker-compose.yml`
+
+```yml
+services:
+  oci:
+    image: ghcr.io/dasultras/oci-arm-host-capacity:main
+    restart: unless-stopped
+    environment:
+      OCI_USER_ID: xxxx
+      OCI_TENANCY_ID: xxxx
+      OCI_KEY_FINGERPRINT: xxxx
+      OCI_SUBNET_ID: xxxx
+      OCI_IMAGE_ID: xxxx
+      OCI_SSH_PUBLIC_KEY: "ssh-ed25519 AAAAC3N***o2U user@example.com"
+    volumes:
+      - ./oracle_account-api-private_key.pem:/private_key.pem:ro
+```
 
 ### Linux / WSL
 
