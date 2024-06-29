@@ -62,4 +62,4 @@ ENV TOO_MANY_REQUESTS_TIME_WAIT=600
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Run the command on container startup
-CMD cron && tail -f /var/log/cron.log
+CMD /usr/local/bin/php /usr/src/app/index.php && cron && tail -f /var/log/cron.log
