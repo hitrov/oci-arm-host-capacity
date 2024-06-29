@@ -1,0 +1,9 @@
+services:
+  oci:
+    build: .
+    image: ghcr.io/dasultras/oci-arm-host-capacity:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./.local/oracle_account-api-private_key_2024-06-27T12_09_46.542Z.pem:/oci_acc-private_key.pem:ro
