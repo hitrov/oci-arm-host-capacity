@@ -37,8 +37,8 @@ RUN mv /usr/src/app/scripts/entrypoint.sh /entrypoint.sh && \
 RUN touch /var/log/cron.log && \
     chmod 777 /var/log/cron.log
 
-# Add the cron job to the crontab file
-RUN echo '* * * * * /usr/src/app/scripts/run.sh >> /var/log/cron.log' > /etc/cron.d/oci && \
+# Add the cron job to the crontab file (every 5 minutes)
+RUN echo '*/5 * * * * /usr/src/app/scripts/run.sh >> /var/log/cron.log' > /etc/cron.d/oci && \
     chmod 0644 /etc/cron.d/oci && \
     crontab /etc/cron.d/oci
 
@@ -73,4 +73,4 @@ ENV TOO_MANY_REQUESTS_TIME_WAIT=600
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Run the command on container startup
-CMD /usr/src/app/scripts/run.sh && cron && tail -f /var/log/cron.log
+CMD cron && tail -f /var/log/cron.log

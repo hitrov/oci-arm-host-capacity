@@ -24,7 +24,8 @@ fi
 printenv | grep OCI_ > /etc/environment
 echo "[ENTRYPOINT] Environment variables written to /etc/environment"
 
-echo "[ENTRYPOINT] Container startet..."
+echo "[ENTRYPOINT] Container erfolgreich gestartet..."
+echo "[ENTRYPOINT] Cron Job wird alle 5 Minuten ausgeführt..."
 
 # Execute the passed command
 exec "$@"
