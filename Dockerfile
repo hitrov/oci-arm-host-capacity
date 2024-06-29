@@ -48,25 +48,14 @@ VOLUME /etc/ssl/certs
 #
 # Set environment variables
 #
-ENV OCI_REGION=eu-frankfurt-1
-ENV OCI_USER_ID=ocid1.user.oc1..aaaaaaaax72***kd3q
-ENV OCI_TENANCY_ID=ocid1.tenancy.oc1..aaaaaaaakpx***qmpa
-ENV OCI_KEY_FINGERPRINT=b3:a5:90:***:b0:8d:1c
-# absolute path (including directories) or direct public accessible URL
-ENV OCI_PRIVATE_KEY_FILENAME="/path/to/oracleidentitycloudservice_***-07-14-10-35.pem"
-ENV OCI_SUBNET_ID=ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaahbb***faq
-ENV OCI_IMAGE_ID=ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa23z***v6wa
-# Always free ARM: 1,2,3,4. Always free AMD x64: 1
-ENV OCI_OCPUS=4
-# Always free ARM: 6,12,18,24. NB! Oracle Linux Cloud Developer Image requires minimum 8. Always free AMD x64: 1
-ENV OCI_MEMORY_IN_GBS=24
-# Or "VM.Standard.E2.1.Micro" for Always free AMD x64
-ENV OCI_SHAPE=VM.Standard.A1.Flex
-ENV OCI_MAX_INSTANCES=1
-# Your public key ~/.ssh/id_rsa.pub contents
-# NB! No new lines / line endings allowed! Put inside double quotes
-ENV OCI_SSH_PUBLIC_KEY="ssh-ed25519 AAAAC3N***o2U user@example.com"
+ENV OCI_PRIVATE_KEY_FILENAME="/private_key.pem"
 
+ENV OCI_REGION=eu-frankfurt-1
+ENV OCI_OCPUS=4
+ENV OCI_MEMORY_IN_GBS=24
+ENV OCI_SHAPE=VM.Standard.A1.Flex
+
+ENV OCI_MAX_INSTANCES=1
 ENV CACHE_AVAILABILITY_DOMAINS=1
 ENV TOO_MANY_REQUESTS_TIME_WAIT=600
 
