@@ -13,6 +13,7 @@ use Hitrov\FileCache;
 use Hitrov\OciApi;
 use Hitrov\OciConfig;
 use Hitrov\TooManyRequestsWaiter;
+use Hitrov\Notification\Discord;
 
 $envFilename = empty($argv[1]) ? '.env' : $argv[1];
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__, $envFilename);
@@ -52,7 +53,7 @@ if (getenv('CACHE_AVAILABILITY_DOMAINS')) {
 if (getenv('TOO_MANY_REQUESTS_TIME_WAIT')) {
     $api->setWaiter(new TooManyRequestsWaiter((int) getenv('TOO_MANY_REQUESTS_TIME_WAIT')));
 }
-$notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
+$notifier = (function (): \Hitrov\Interfaces\NotifierInterface{
     /*
      * if you have own https://core.telegram.org/bots
      * and set TELEGRAM_BOT_API_KEY and your TELEGRAM_USER_ID in .env
@@ -61,7 +62,7 @@ $notifier = (function (): \Hitrov\Interfaces\NotifierInterface {
      * otherwise - don't mind OR develop you own NotifierInterface
      * to e.g. send SMS or email.
      */
-    return new \Hitrov\Notification\Telegram();
+    return new \Hitrov\Notification\DiscordNotifier("WEBHOOK_URL");
 })();
 
 $shape = getenv('OCI_SHAPE');
@@ -83,7 +84,7 @@ if (!empty($config->availabilityDomains)) {
     if (is_array($config->availabilityDomains)) {
         $availabilityDomains = $config->availabilityDomains;
     } else {
-        $availabilityDomains = [ $config->availabilityDomains ];
+        $availabilityDomains = [$config->availabilityDomains];
     }
 } else {
     $availabilityDomains = $api->getAvailabilityDomains($config);
@@ -93,12 +94,12 @@ foreach ($availabilityDomains as $availabilityDomainEntity) {
     $availabilityDomain = is_array($availabilityDomainEntity) ? $availabilityDomainEntity['name'] : $availabilityDomainEntity;
     try {
         $instanceDetails = $api->createInstance($config, $shape, getenv('OCI_SSH_PUBLIC_KEY'), $availabilityDomain);
-    } catch(ApiCallException $e) {
+    } catch (ApiCallException $e) {
         $message = $e->getMessage();
         echo "$message\n";
-//            if ($notifier->isSupported()) {
-//                $notifier->notify($message);
-//            }
+        if ($notifier->isSupported()) {
+            $notifier->notify($message);
+        }
 
         if (
             $e->getCode() === 500 &&
