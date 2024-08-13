@@ -68,6 +68,7 @@ git clone https://github.com/hitrov/oci-arm-host-capacity.git
 ```
 run
 ```bash
+sudo apt install php-curl php-xml
 cd oci-arm-host-capacity/
 composer install
 ```
