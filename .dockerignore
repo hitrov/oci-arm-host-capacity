@@ -1,0 +1,6 @@
+*
+
+!/src
+!composer.json
+!composer.lock
+!index.php

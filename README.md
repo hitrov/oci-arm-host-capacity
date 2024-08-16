@@ -12,6 +12,8 @@ Very neat and useful configuration was recently [announced](https://blogs.oracle
 
 This approach requires **PHP 7.x or 8.x** and **composer** installed and will call "LaunchInstance" OCI API [endpoint](https://docs.oracle.com/en-us/iaas/api/#/en/iaas/20160918/Instance/LaunchInstance). We'll utilise the [package](https://packagist.org/packages/hitrov/oci-api-php-request-sign) which I've written (and [published](https://github.com/hitrov/oci-api-php-request-sign)) some time ago, here's the [article](https://hitrov.medium.com/creating-mini-php-sdk-to-sign-oracle-cloud-infrastructure-api-requests-d91a224c7008?sk=5b4405c1124bfeac30a370630fd94126).
 
+A Docker compose is also available for convenience
+
 If you prefer article style, here's a link to [Medium](https://hitrov.medium.com/resolving-oracle-cloud-out-of-capacity-issue-and-getting-free-vps-with-4-arm-cores-24gb-of-6ecd5ede6fcc?sk=01d761f7cd80c77e0fed773972f4d1a8)
 
 YouTube video instruction [https://youtu.be/uzAqgjElc64](https://youtu.be/uzAqgjElc64) 
@@ -64,11 +66,11 @@ Copy the contents from textarea and save it to file with a name "config". I put 
 
 Clone this repository
 ```bash
-git clone https://github.com/hitrov/oci-arm-host-capacity.git
+git clone https://github.com/hitrov/oci-arm-host-capacity.git && cd oci-arm-host-capacity/
 ```
-run
+
+run (is only necessary for **native startup.** Ignore if you want to run in docker)
 ```bash
-cd oci-arm-host-capacity/
 composer install
 ```
 
@@ -95,7 +97,12 @@ Adjust these values in `.env` file accordingly:
 
 ### Private key
 
+Native way:
 `OCI_PRIVATE_KEY_FILENAME` is an absolute path (including directories) or direct public accessible URL to your *.pem private key file.
+
+Docker way:
+`OCI_PRIVATE_KEY_FILENAME_HOST` variable need to be set instead. Content is the same as above
+
 
 ### Instance parameters
 
@@ -170,8 +177,16 @@ When you managed to launch one and need more (or 2 from scratch), set to `OCI_MA
 
 ## Running the script
 
+Native way:
+
 ```bash
 php ./index.php
+```
+
+Docker way:
+
+```bash
+docker compose up -d
 ```
 
 I bet that the output (error) will be similar to the one in a browser a few minutes ago
