@@ -46,7 +46,7 @@ class OciApi
         if (isset($this->waiter) && $this->waiter->isConfigured()) {
             if ($this->waiter->isTooEarly()) {
                 throw new TooManyRequestsWaiterException(
-                    "Will retry after {$this->waiter->secondsRemaining()} seconds",
+                    "TooManyRequests, Will retry after {$this->waiter->secondsRemaining()} seconds",
                 );
             }
 
